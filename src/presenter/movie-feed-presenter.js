@@ -14,8 +14,12 @@ export default class MovieFeedPresenter {
   filmsContainer = new FilmsContainerView();
 
 
-  init = (siteElement) => {
+  init = (siteElement, movieModel) => {
     this.siteElement = siteElement;
+    this.movieModel = movieModel;
+    this.movies = [...this.movieModel.getMovies()];
+    console.log(this.movies)
+
     render(this.films, siteElement);
     render(this.filmsList, this.films.getElement());
     render(this.filmsContainer, this.filmsList.getElement());
