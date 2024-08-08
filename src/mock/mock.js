@@ -1,4 +1,4 @@
-import { getRandomInteger, getRandomNumber, getRandomElement } from '../utils.js';
+import { getRandomInteger, getRandomNumber, getRandomElement, getRandomDate } from '../utils.js';
 
 const getMovieName = () => {
   const movieNames = [
@@ -52,20 +52,21 @@ const getMovieDescription = () => {
 };
 
 const getMoviePoster = () => {
-  const path = `../../public/images/posters/${getRandomInteger(1,7)}.jpg`;
+  const path = `./images/posters/${getRandomInteger(1,7)}.jpg`;
   return path;
 };
 
 const getMovieRating = () => getRandomNumber(4);
 
-const getMovieYear = () => getRandomInteger(1929, 1990);
+const getMovieYear = () => getRandomDate(1929, 1990);
 
 const getMovieLength = () => {
   const movieTime = `${getRandomInteger(1, 3)}h ${getRandomInteger(0, 59)}m`;
   return movieTime;
 };
 
-export const generateMovie = () => ({
+export const generateMovie = (id) => ({
+  id,
   title: getMovieName(),
   rating: getMovieRating(),
   year: getMovieYear(),
