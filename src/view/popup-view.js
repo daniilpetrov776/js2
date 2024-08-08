@@ -8,7 +8,7 @@ const createNewPopupTemplate = () => (`<section class="film-details">
       </div>
       <div class="film-details__info-wrap">
         <div class="film-details__poster">
-          <img class="film-details__poster-img" src="./images/posters/the-great-flamarion.jpg" alt="">
+          <img class="film-details__poster-img" src="./images/posters/1.jpg" alt="">
 
           <p class="film-details__age">18+</p>
         </div>
