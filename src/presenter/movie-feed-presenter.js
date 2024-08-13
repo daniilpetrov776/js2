@@ -15,7 +15,6 @@ export default class MovieFeedPresenter {
     this.siteElement = siteElement;
     this.movieModel = movieModel;
     this.movies = [...this.movieModel.getMovies()];
-    console.log(this.movies);
 
     render(this.films, siteElement);
     render(this.filmsList, this.films.getElement());
@@ -26,6 +25,6 @@ export default class MovieFeedPresenter {
     }
 
     render(new ShowMoreButtonView(), siteElement);
-    render(new PopupView(), siteElement);
+    render(new PopupView(this.movies[0]), siteElement);
   };
 }

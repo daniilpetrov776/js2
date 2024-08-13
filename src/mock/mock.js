@@ -1,5 +1,7 @@
-import { getRandomInteger, getRandomNumber, getRandomElement, getRandomDate } from '../utils.js';
-
+import { getRandomInteger, getRandomNumber, getRandomElement, getRandomDate, getRandomSubset, getRandomBoolean, getCurrentTime } from '../utils.js';
+import { getMovieComments } from './comments.js';
+const MAX_AMOUNT_OF_ACTORS = 5;
+const MAX_AMOUNT_OF_WRITERS = 3;
 const getMovieName = () => {
   const movieNames = [
     'Made for each other',
@@ -12,6 +14,20 @@ const getMovieName = () => {
   ];
 
   return getRandomElement(movieNames);
+};
+
+const getAlternativeMovieName = () => {
+  const alternativeMovieNames = [
+    'Journey to the Moon',
+    'The Phantom Carriage',
+    'The General',
+    'Metropolis',
+    'Sunrise: A Song of Two Humans',
+    'The Last Laugh',
+    'Nosferatu',
+  ];
+
+  return getRandomElement(alternativeMovieNames);
 };
 
 const getMovieGenre = () => {
@@ -51,6 +67,17 @@ const getMovieDescription = () => {
   return getRandomElement(movieDescriptions);
 };
 
+const getAgeRating = () => {
+  const getAgeRatings = [
+    '0+',
+    '6+',
+    '13+',
+    '17+',
+    '18+',
+  ];
+  return getRandomElement(getAgeRatings);
+};
+
 const getMoviePoster = () => {
   const path = `./images/posters/${getRandomInteger(1,7)}.jpg`;
   return path;
@@ -65,13 +92,110 @@ const getMovieLength = () => {
   return movieTime;
 };
 
+const getMovieDirector = () => {
+  const directors = [
+    'Steven Spielberg',
+    'Martin Scorsese',
+    'Christopher Nolan',
+    'Quentin Tarantino',
+    'James Cameron',
+    'Alfred Hitchcock',
+    'Stanley Kubrick',
+    'Ridley Scott',
+    'Peter Jackson',
+    'Francis Ford Coppola',
+    'David Fincher',
+    'Wes Anderson',
+    'Joel Coen',
+    'George Lucas',
+    'Tim Burton'
+  ];
+  return getRandomElement(directors);
+};
+
+const getMovieActors = () => {
+  const actors = [
+    'Leonardo DiCaprio',
+    'Robert De Niro',
+    'Tom Hanks',
+    'Denzel Washington',
+    'Brad Pitt',
+    'Johnny Depp',
+    'Morgan Freeman',
+    'George Clooney',
+    'Al Pacino',
+    'Will Smith',
+    'Matt Damon',
+    'Samuel L. Jackson',
+    'Robert Downey Jr.',
+    'Christian Bale',
+    'Anthony Hopkins'
+  ];
+  const selectedActors = getRandomSubset(actors, getRandomInteger(1, MAX_AMOUNT_OF_ACTORS));
+  return selectedActors;
+};
+
+const getMovieCountry = () => {
+  const countries = [
+    'United States',
+    'Canada',
+    'Brazil',
+    'United Kingdom',
+    'Germany',
+    'France',
+    'Italy',
+    'Spain',
+    'Japan',
+    'Australia'
+  ];
+  return getRandomElement(countries);
+};
+
+const getMovieWriters = () => {
+  const writers = [
+    'Christopher Nolan',
+    'Quentin Tarantino',
+    'Aaron Sorkin',
+    'Charlie Kaufman',
+    'David Mamet',
+    'Steven Zaillian',
+    'Paul Schrader',
+    'William Goldman',
+    'John August',
+    'Jane Goldman',
+    'Richard Curtis',
+    'Nora Ephron',
+    'John Logan',
+    'Wes Anderson',
+    'Coen Brothers'
+  ];
+  const selectedWriters = getRandomSubset(writers, getRandomInteger(1, MAX_AMOUNT_OF_WRITERS));
+  return selectedWriters;
+};
+
 export const generateMovie = (id) => ({
   id,
-  title: getMovieName(),
-  rating: getMovieRating(),
-  year: getMovieYear(),
-  duration: getMovieLength(),
-  genre: getMovieGenre(),
-  poster: getMoviePoster(),
-  description: getMovieDescription()
+  comments: getMovieComments(),
+  filmInfo: {
+    title: getMovieName(),
+    altTitle: getAlternativeMovieName(),
+    rating: getMovieRating(),
+    poster: getMoviePoster(),
+    ageRating: getAgeRating(),
+    director: getMovieDirector(),
+    writers: getMovieWriters(),
+    actors: getMovieActors(),
+    year: getMovieYear(),
+    country: getMovieCountry(),
+    duration: getMovieLength(),
+    genre: getMovieGenre(),
+    description: getMovieDescription(),
+  },
+  userDetails: {
+    watchlist: getRandomBoolean(),
+    alreadyWatched: getRandomBoolean(),
+    watchingDate: getCurrentTime(),
+    favorite: getRandomBoolean(),
+  },
 });
+

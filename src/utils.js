@@ -22,10 +22,26 @@ export const getRandomDate = (startYear, endYear) => {
   return randomDate.toISOString();
 };
 
-export function getCurrentTime() {
+export const getCurrentTime = () => {
   const currentDate = new Date();
   return currentDate.toISOString();
-}
+};
 
 export const dateToMDY = (date) => dayjs(date).format('MMMM D YYYY');
 export const dateToY = (date) => dayjs(date).format('YYYY');
+
+// вернет случайный массив из элементов массива длдинной в 4
+export const getRandomSubset = (set, length)  => {
+  const subsetLength = Math.floor(Math.random() * length) + 1;
+  const subset = [];
+  const copyArr = [...set];
+  for (let i = 0; i < subsetLength; i++) {
+
+    const randomIndex = Math.floor(Math.random() * copyArr.length);
+    subset.push(copyArr[randomIndex]);
+    copyArr.splice(randomIndex, 1);
+  }
+  return subset;
+};
+
+export const getRandomBoolean = () => Math.random() >= 0.5;
