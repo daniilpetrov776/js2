@@ -1,4 +1,5 @@
 import {createElement} from '../render.js';
+import { dateToMDY } from '../utils.js';
 
 const createNewPopupTemplate = (popup) => {
   const {filmInfo: {
@@ -55,7 +56,7 @@ const createNewPopupTemplate = (popup) => {
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Release Date</td>
-              <td class="film-details__cell">${year}</td>
+              <td class="film-details__cell">${dateToMDY(year)}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Runtime</td>
@@ -127,23 +128,26 @@ const createNewPopupTemplate = (popup) => {
 `);
 };
 export default class PopupView {
+
+  #element = null;
+
   constructor(popup) {
     this.popup = popup;
   }
 
-  getTemplate() {
+  get template() {
     return createNewPopupTemplate(this.popup);
   }
 
-  getElement() {
-    if(!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if(!this.#element) {
+      this.#element = createElement(this.template);
     }
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 
 }
