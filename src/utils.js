@@ -45,3 +45,5 @@ export const getRandomSubset = (set, length)  => {
 };
 
 export const getRandomBoolean = () => Math.random() >= 0.5;
+
+export const isEscapeKey = (evt) => evt.key === 'Escape';
