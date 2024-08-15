@@ -88,6 +88,9 @@ export const getMovieComments = () => {
   const filmCommentsCount = (hasComments)
     ? getRandomInteger(1, MAX_COMMENTS_ON_FILM)
     : 0;
+  if (filmCommentsCount === 0) {
+    return [];
+  }
   return getRandomSubset(comments, filmCommentsCount);
 };
 

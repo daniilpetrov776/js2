@@ -25,9 +25,10 @@ export default class MovieFeedPresenter {
 
     for (let i = 0; i < this.#movies.length; i++) {
       render(new FilmView(this.#movies[i]), this.#filmsContainer.element);
+      // console.log(this.#movies[i])
     }
 
     render(new ShowMoreButtonView(), siteElement);
-    render(new PopupView(this.#movies[0]), siteElement);
+    // render(new PopupView(this.#movies[0]), siteElement);
   };
 }
