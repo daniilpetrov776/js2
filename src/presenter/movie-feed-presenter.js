@@ -21,16 +21,18 @@ export default class MovieFeedPresenter {
   #movies = [];
   #renderMoviesCount = MOVIES_PER_STEP;
 
-  // constructor (siteElement, movieModel) {
-  //   tthis.#siteElement = siteElement;
-  //   this.#movieModel = movieModel;
-  // }
-
-  init = (siteElement, movieModel) => {
+  constructor (siteElement, movieModel) {
     this.#siteElement = siteElement;
     this.#movieModel = movieModel;
+  }
+
+  init = () => {
     this.#movies = [...this.#movieModel.movies];
-    render(this.#films, siteElement);
+    this.#renderFeed();
+  };
+
+  #renderFeed = () => {
+    render(this.#films, this.#siteElement);
     render(this.#filmsList, this.#films.element);
     render(this.#filmsContainer, this.#filmsList.element);
 
@@ -38,14 +40,15 @@ export default class MovieFeedPresenter {
       this.#renderMovie(this.#movies[i]);
     }
 
-    this.#renderEmptyFeed();
+    if (this.#movies.length === 0) {
+      this.#renderEmptyFeed();
+    }
 
     if (this.#movies.length > MOVIES_PER_STEP) {
-      render(this.#loadMoreMoviesComponent, siteElement);
+      render(this.#loadMoreMoviesComponent, this.#siteElement);
 
       this.#loadMoreMoviesComponent.element.addEventListener('click', this.#onShowMoreButtonClick);
     }
-
   };
 
   #onShowMoreButtonClick = (evt) => {
@@ -65,9 +68,7 @@ export default class MovieFeedPresenter {
   #renderEmptyFeed = () => {
     const emptyMessageComponent = new EmptyFeedView();
 
-    if (this.#movies.length === 0) {
-      render(emptyMessageComponent, this.#films.element);
-    }
+    render(emptyMessageComponent, this.#films.element);
   };
 
   #renderMovie = (movie) => {
@@ -87,19 +88,20 @@ export default class MovieFeedPresenter {
         this.#popupComponent.element.remove();
         document.body.classList.remove('hide-overflow');
         this.#popupComponent = null;
+      }
+    };
+
+    const onEscKeydown = (evt) => {
+      if (isEscapeKey(evt) && this.#popupComponent) {
+        closePopup();
         document.removeEventListener('keydown', onEscKeydown);
       }
     };
 
     const onCloseButtonClick = () => {
       closePopup();
+      document.removeEventListener('keydown', onEscKeydown);
     };
-
-    function onEscKeydown () {
-      if (isEscapeKey && this.#popupComponent) {
-        closePopup();
-      }
-    }
 
     const renderPopup = () => {
       if (!this.#popupComponent) {

@@ -10,9 +10,9 @@ export const siteHeaderElement = document.querySelector('.header');
 
 
 const movieModel = new MovieModel();
-const movieFeedPresenter = new MovieFeedPresenter();
+const movieFeedPresenter = new MovieFeedPresenter(siteMainElement, movieModel);
 
 render(new ProfileView(), siteHeaderElement);
 render(new FilterView(), siteMainElement);
 render(new SortView(), siteMainElement);
-movieFeedPresenter.init(siteMainElement, movieModel);
+movieFeedPresenter.init();
