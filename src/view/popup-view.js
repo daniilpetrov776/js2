@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import { dateToMDY } from '../utils.js';
 
 const createNewPopupTemplate = (popup) => {
@@ -127,27 +127,15 @@ const createNewPopupTemplate = (popup) => {
 </section>
 `);
 };
-export default class PopupView {
-
-  #element = null;
+export default class PopupView extends AbstractView {
+  #popup = null;
 
   constructor(popup) {
-    this.popup = popup;
+    super();
+    this.#popup = popup;
   }
 
   get template() {
-    return createNewPopupTemplate(this.popup);
+    return createNewPopupTemplate(this.#popup);
   }
-
-  get element() {
-    if(!this.#element) {
-      this.#element = createElement(this.template);
-    }
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
-  }
-
 }

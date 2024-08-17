@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 const createNewProfileTemplate = () => (`<section class="header__profile profile">
     <p class="profile__rating">Movie Buff</p>
@@ -6,23 +6,8 @@ const createNewProfileTemplate = () => (`<section class="header__profile profile
   </section>
 `);
 
-export default class ProfileView {
-
-  #element = null;
-
+export default class ProfileView extends AbstractView {
   get template() {
     return createNewProfileTemplate();
   }
-
-  get element() {
-    if(!this.#element) {
-      this.#element = createElement(this.template);
-    }
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
-  }
-
 }

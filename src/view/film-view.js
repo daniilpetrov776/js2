@@ -1,5 +1,5 @@
-import {createElement} from '../render.js';
 import { dateToY } from '../utils.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 const createNewFilmTemplate = (movie) => {
   const {filmInfo: {
@@ -34,26 +34,15 @@ const createNewFilmTemplate = (movie) => {
 `);
 };
 
-export default class FilmView {
+export default class FilmView extends AbstractView {
+  #task = null;
+
   constructor(task) {
+    super();
     this.task = task;
   }
-
-  #element = null;
 
   get template() {
     return createNewFilmTemplate(this.task);
   }
-
-  get element() {
-    if(!this.#element) {
-      this.#element = createElement(this.template);
-    }
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
-  }
-
 }
