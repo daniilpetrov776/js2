@@ -6,6 +6,7 @@ import FilmsContainerView from '../view/films-container-view.js';
 import PopupView from '../view/popup-view.js';
 import ShowMoreButtonView from '../view/show-more-button-view.js';
 import EmptyFeedView from '../view/empty-feed-view.js';
+import CommentView from '../view/comment-view.js';
 import { isEscapeKey } from '../utils/utils.js';
 
 const MOVIES_PER_STEP = 5;
@@ -17,8 +18,10 @@ export default class MovieFeedPresenter {
   #siteElement = null;
   #movieModel = null;
   #popupComponent = null;
+  #commentComponent = null;
 
   #movies = [];
+  #comments = [];
   #renderMoviesCount = MOVIES_PER_STEP;
 
   constructor (siteElement, movieModel) {
@@ -99,6 +102,13 @@ export default class MovieFeedPresenter {
       closePopup();
       document.removeEventListener('keydown', onEscKeydown);
     };
+
+    // const renderComment = () => {
+    //   this.#commentComponent = new CommentView(movie);
+    //   this.#comments = [...this.#commentComponent.comments];
+    //   this.#comments.forEach((comment) => {render(comment, )})
+
+    // };
 
     const renderPopup = () => {
       if (!this.#popupComponent) {

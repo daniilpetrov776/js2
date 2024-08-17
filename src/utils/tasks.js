@@ -15,3 +15,21 @@ export const getCurrentTime = () => {
 
 export const dateToMDY = (date) => dayjs(date).format('MMMM D YYYY');
 export const dateToY = (date) => dayjs(date).format('YYYY');
+export const dateToRelativeTime = (date) => {
+  const dateFromData = dayjs(date);
+  const now = dayjs();
+  const diffInDays = now.diff(dateFromData, 'day');
+  let relativeTimeText;
+  switch (diffInDays) {
+    case 0:
+      relativeTimeText = 'today';
+      break;
+    case 1:
+      relativeTimeText = 'yesterday';
+      break;
+    default:
+      relativeTimeText = `${diffInDays} days ago`;
+      break;
+  }
+  return relativeTimeText;
+};
