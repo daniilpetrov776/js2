@@ -6,7 +6,7 @@ import FilmsContainerView from '../view/films-container-view.js';
 import PopupView from '../view/popup-view.js';
 import ShowMoreButtonView from '../view/show-more-button-view.js';
 import EmptyFeedView from '../view/empty-feed-view.js';
-import { isEscapeKey } from '../utils.js';
+import { isEscapeKey } from '../utils/utils.js';
 
 const MOVIES_PER_STEP = 5;
 export default class MovieFeedPresenter {

@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { dateToMDY } from '../utils.js';
+import { dateToMDY } from '../utils/tasks.js';
 
 const createNewPopupTemplate = (popup) => {
   const {filmInfo: {

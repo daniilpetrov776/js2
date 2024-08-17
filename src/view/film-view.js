@@ -1,4 +1,4 @@
-import { dateToY } from '../utils.js';
+import { dateToY } from '../utils/tasks.js';
 import AbstractView from '../framework/view/abstract-view.js';
 
 const createNewFilmTemplate = (movie) => {

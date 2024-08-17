@@ -1,4 +1,4 @@
-import { getRandomBoolean, getRandomInteger, getRandomSubset } from '../utils.js';
+import { getRandomBoolean, getRandomInteger, getRandomSubset } from '../utils/utils.js';
 const MAX_COMMENTS_ON_FILM = 10;
 
 const commentEmotion = ['smile', 'sleeping', 'puke', 'angry'];

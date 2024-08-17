@@ -1,4 +1,6 @@
-import { getRandomInteger, getRandomNumber, getRandomElement, getRandomDate, getRandomSubset, getRandomBoolean, getCurrentTime } from '../utils.js';
+import { getRandomInteger, getRandomNumber, getRandomElement, getRandomSubset, getRandomBoolean } from '../utils/utils.js';
+import { getRandomDate, getCurrentTime } from '../utils/tasks.js';
+
 import { getMovieComments } from './comments.js';
 const MAX_AMOUNT_OF_ACTORS = 5;
 const MAX_AMOUNT_OF_WRITERS = 3;
