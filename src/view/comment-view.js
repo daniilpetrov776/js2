@@ -2,12 +2,12 @@ import AbstractView from '../framework/view/abstract-view.js';
 import { dateToRelativeTime } from '../utils/tasks.js';
 
 const createNewCommentTemplate = (com) => {
-  const {comments: {
+  const {
     author,
     comment,
     date,
     emotion,
-  }} = com;
+  } = com;
   return (`<li class="film-details__comment">
             <span class="film-details__comment-emoji">
               <img src="./images/emoji/${emotion}.png" width="55" height="55" alt="emoji-sleeping">
@@ -15,8 +15,8 @@ const createNewCommentTemplate = (com) => {
             <div>
               <p class="film-details__comment-text">${comment}</p>
               <p class="film-details__comment-info">
-                <span class="film-details__comment-author">${author}John Doe</span>
-                <span class="film-details__comment-day">${dateToRelativeTime(date)}2 days ago</span>
+                <span class="film-details__comment-author">${author}</span>
+                <span class="film-details__comment-day">${dateToRelativeTime(date)}</span>
                 <button class="film-details__comment-delete">Delete</button>
               </p>
             </div>
@@ -32,6 +32,6 @@ export default class CommentView extends AbstractView {
   }
 
   get template() {
-    return createNewCommentTemplate;
+    return createNewCommentTemplate(this.comment);
   }
 }

@@ -7,6 +7,7 @@ import PopupView from '../view/popup-view.js';
 import ShowMoreButtonView from '../view/show-more-button-view.js';
 import EmptyFeedView from '../view/empty-feed-view.js';
 import CommentView from '../view/comment-view.js';
+import PopupCommentContainerView from '../view/popup-comment-container-view.js';
 import { isEscapeKey } from '../utils/utils.js';
 
 const MOVIES_PER_STEP = 5;
@@ -18,6 +19,7 @@ export default class MovieFeedPresenter {
   #siteElement = null;
   #movieModel = null;
   #popupComponent = null;
+  #commentContainer = new PopupCommentContainerView();
   #commentComponent = null;
 
   #movies = [];
@@ -75,14 +77,12 @@ export default class MovieFeedPresenter {
 
   #renderMovie = (movie) => {
     const movieComponent = new FilmView(movie);
-
     render(movieComponent, this.#filmsContainer.element);
 
     movieComponent.setMovieClickHandler(() => this.#renderMoviePopup(movie));
   };
 
   #renderMoviePopup = (movie) => {
-
     const closePopup = () => {
       if (this.#popupComponent) {
         this.#popupComponent.element.remove();
@@ -103,12 +103,17 @@ export default class MovieFeedPresenter {
       document.removeEventListener('keydown', onEscKeydown);
     };
 
-    // const renderComment = () => {
-    //   this.#commentComponent = new CommentView(movie);
-    //   this.#comments = [...this.#commentComponent.comments];
-    //   this.#comments.forEach((comment) => {render(comment, )})
-
-    // };
+    const renderComment = () => {
+      this.#comments = movie.comments;
+      console.log(this.#comments)
+      console.log(this.#commentComponent)
+      console.log(this.#popupComponent.element instanceof HTMLElement)
+      // console.log(this.#comments)
+      for (let i = 0; i < this.#comments.length; i++) {
+        this.#commentComponent = new CommentView(this.#comments[i]);
+        render(this.#commentComponent, this.#popupComponent.element)
+      }
+    };
 
     const renderPopup = () => {
       if (!this.#popupComponent) {
@@ -124,5 +129,6 @@ export default class MovieFeedPresenter {
     };
 
     renderPopup();
+    renderComment();
   };
 }
