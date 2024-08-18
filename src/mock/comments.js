@@ -9,28 +9,28 @@ const comments = [
     author: 'Elena Novak',
     comment: 'Отличный фильм',
     date: '2021-09-23T12:34:56.654Z',
-    emotion: commentEmotion[getRandomInteger(0, commentEmotion.length)]
+    emotion: commentEmotion[getRandomInteger(0, commentEmotion.length - 1)]
   },
   {
     id: 1,
     author: 'Alex Smith',
     comment: 'Super film!',
     date: '2022-11-19T09:23:45.453Z',
-    emotion: commentEmotion[getRandomInteger(0, commentEmotion.length)]
+    emotion: commentEmotion[getRandomInteger(0, commentEmotion.length - 1)]
   },
   {
     id: 2,
     author: 'Maria Petrova',
     comment: 'Фильм был захватывающим!',
     date: '2023-06-12T14:22:18.785Z',
-    emotion: commentEmotion[getRandomInteger(0, commentEmotion.length)]
+    emotion: commentEmotion[getRandomInteger(0, commentEmotion.length - 1)]
   },
   {
     id: 3,
     author: 'John Doe',
     comment: 'Мне не очень понравился сюжет.',
     date: '2020-03-05T17:16:23.123Z',
-    emotion: commentEmotion[getRandomInteger(0, commentEmotion.length)]
+    emotion: commentEmotion[getRandomInteger(0, commentEmotion.length - 1)]
   },
   {
     id: 4,

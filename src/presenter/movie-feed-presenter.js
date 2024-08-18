@@ -8,6 +8,10 @@ import ShowMoreButtonView from '../view/show-more-button-view.js';
 import EmptyFeedView from '../view/empty-feed-view.js';
 import CommentView from '../view/comment-view.js';
 import PopupCommentContainerView from '../view/popup-comment-container-view.js';
+import PopupCommentsWrapperView from '../view/comments-wrapper-view.js';
+import PopupCommentsView from '../view/comments-list-view.js';
+import NewCommentView from '../view/new-comment-view.js';
+
 import { isEscapeKey } from '../utils/utils.js';
 
 const MOVIES_PER_STEP = 5;
@@ -20,6 +24,10 @@ export default class MovieFeedPresenter {
   #movieModel = null;
   #popupComponent = null;
   #commentContainer = new PopupCommentContainerView();
+  #commentsWrapper = new PopupCommentsWrapperView();
+  #commentsList = new PopupCommentsView();
+  #newCommentComponent = new NewCommentView();
+
   #commentComponent = null;
 
   #movies = [];
@@ -33,6 +41,7 @@ export default class MovieFeedPresenter {
 
   init = () => {
     this.#movies = [...this.#movieModel.movies];
+    // console.log(this.#movies)
     this.#renderFeed();
   };
 
@@ -105,13 +114,17 @@ export default class MovieFeedPresenter {
 
     const renderComment = () => {
       this.#comments = movie.comments;
-      console.log(this.#comments)
-      console.log(this.#commentComponent)
-      console.log(this.#popupComponent.element instanceof HTMLElement)
+      this.#commentsWrapper = new PopupCommentsWrapperView(this.#comments);
+      render(this.#commentContainer, this.#popupComponent.element);
+      render(this.#commentsWrapper, this.#commentContainer.element, 'afterbegin');
+      render(this.#commentsList, this.#commentsWrapper.element);
+      render(this.#newCommentComponent, this.#commentsWrapper.element);
       // console.log(this.#comments)
+      // console.log(this.#commentComponent)
+      // console.log(this.#popupComponent.element instanceof HTMLElement)
       for (let i = 0; i < this.#comments.length; i++) {
         this.#commentComponent = new CommentView(this.#comments[i]);
-        render(this.#commentComponent, this.#popupComponent.element)
+        render(this.#commentComponent, this.#commentsList.element);
       }
     };
 
