@@ -8,10 +8,8 @@ import ShowMoreButtonView from '../view/show-more-button-view.js';
 import EmptyFeedView from '../view/empty-feed-view.js';
 import CommentView from '../view/comment-view.js';
 import PopupCommentContainerView from '../view/popup-comment-container-view.js';
-import PopupCommentsWrapperView from '../view/comments-wrapper-view.js';
-import PopupCommentsView from '../view/comments-list-view.js';
-import NewCommentView from '../view/new-comment-view.js';
-
+import FooterView from '../view/footer-view.js';
+import MoviesCountView from '../view/footer-movie-count-view.js';
 import { isEscapeKey } from '../utils/utils.js';
 
 const MOVIES_PER_STEP = 5;
@@ -20,28 +18,27 @@ export default class MovieFeedPresenter {
   #filmsList = new FilmsListView();
   #filmsContainer = new FilmsContainerView();
   #loadMoreMoviesComponent = new ShowMoreButtonView();
+  #footerComponent = new FooterView();
   #siteElement = null;
+  #siteBodyElement = null;
   #movieModel = null;
   #popupComponent = null;
   #commentContainer = new PopupCommentContainerView();
-  #commentsWrapper = new PopupCommentsWrapperView();
-  #commentsList = new PopupCommentsView();
-  #newCommentComponent = new NewCommentView();
-
   #commentComponent = null;
+  #movieCountComponent = null;
 
   #movies = [];
   #comments = [];
   #renderMoviesCount = MOVIES_PER_STEP;
 
-  constructor (siteElement, movieModel) {
+  constructor (siteElement, siteBodyElement, movieModel) {
     this.#siteElement = siteElement;
+    this.#siteBodyElement = siteBodyElement;
     this.#movieModel = movieModel;
   }
 
   init = () => {
     this.#movies = [...this.#movieModel.movies];
-    // console.log(this.#movies)
     this.#renderFeed();
   };
 
@@ -63,6 +60,9 @@ export default class MovieFeedPresenter {
 
       this.#loadMoreMoviesComponent.setClickHandler(this.#onShowMoreButtonClick);
     }
+    render(this.#footerComponent, this.#siteBodyElement);
+    this.#movieCountComponent = new MoviesCountView(this.#movies);
+    render(this.#movieCountComponent, this.#footerComponent.element);
   };
 
   #onShowMoreButtonClick = () => {
@@ -114,17 +114,12 @@ export default class MovieFeedPresenter {
 
     const renderComment = () => {
       this.#comments = movie.comments;
-      this.#commentsWrapper = new PopupCommentsWrapperView(this.#comments);
-      render(this.#commentContainer, this.#popupComponent.element);
-      render(this.#commentsWrapper, this.#commentContainer.element, 'afterbegin');
-      render(this.#commentsList, this.#commentsWrapper.element);
-      render(this.#newCommentComponent, this.#commentsWrapper.element);
       // console.log(this.#comments)
       // console.log(this.#commentComponent)
       // console.log(this.#popupComponent.element instanceof HTMLElement)
       for (let i = 0; i < this.#comments.length; i++) {
         this.#commentComponent = new CommentView(this.#comments[i]);
-        render(this.#commentComponent, this.#commentsList.element);
+        render(this.#commentComponent, this.#popupComponent.element);
       }
     };
 

@@ -175,6 +175,8 @@ const getMovieWriters = () => {
   return selectedWriters;
 };
 
+const alreadyWatched = getRandomBoolean();
+
 export const generateMovie = (id) => ({
   id,
   comments: getMovieComments(),
@@ -195,8 +197,8 @@ export const generateMovie = (id) => ({
   },
   userDetails: {
     watchlist: getRandomBoolean(),
-    alreadyWatched: getRandomBoolean(),
-    watchingDate: getCurrentTime(),
+    alreadyWatched,
+    watchingDate: (alreadyWatched)  ? getCurrentTime() : null,
     favorite: getRandomBoolean(),
   },
 });
