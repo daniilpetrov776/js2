@@ -1,6 +1,7 @@
 import AbstractView from '../framework/view/abstract-view.js';
 
-const createNewMoviesCountTemplate = (movies) => (`<section class="footer__statistics">
+const createNewMoviesCountTemplate = (movies) => (`
+  <section class="footer__statistics">
     <p>${movies.length} movies inside</p>
   </section>`);
 

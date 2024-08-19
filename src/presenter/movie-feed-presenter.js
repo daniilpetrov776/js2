@@ -8,8 +8,6 @@ import ShowMoreButtonView from '../view/show-more-button-view.js';
 import EmptyFeedView from '../view/empty-feed-view.js';
 import CommentView from '../view/comment-view.js';
 import PopupCommentContainerView from '../view/popup-comment-container-view.js';
-import FooterView from '../view/footer-view.js';
-import MoviesCountView from '../view/footer-movie-count-view.js';
 import { isEscapeKey } from '../utils/utils.js';
 
 const MOVIES_PER_STEP = 5;
@@ -18,27 +16,23 @@ export default class MovieFeedPresenter {
   #filmsList = new FilmsListView();
   #filmsContainer = new FilmsContainerView();
   #loadMoreMoviesComponent = new ShowMoreButtonView();
-  #footerComponent = new FooterView();
   #siteElement = null;
-  #siteBodyElement = null;
   #movieModel = null;
   #popupComponent = null;
   #commentContainer = new PopupCommentContainerView();
   #commentComponent = null;
-  #movieCountComponent = null;
 
   #movies = [];
   #comments = [];
   #renderMoviesCount = MOVIES_PER_STEP;
 
-  constructor (siteElement, siteBodyElement, movieModel) {
+  constructor (siteElement, movieModel) {
     this.#siteElement = siteElement;
-    this.#siteBodyElement = siteBodyElement;
     this.#movieModel = movieModel;
   }
 
   init = () => {
-    this.#movies = [...this.#movieModel.movies];
+    this.#movies = [...this.#movieModel.get()];
     this.#renderFeed();
   };
 
@@ -60,9 +54,6 @@ export default class MovieFeedPresenter {
 
       this.#loadMoreMoviesComponent.setClickHandler(this.#onShowMoreButtonClick);
     }
-    render(this.#footerComponent, this.#siteBodyElement);
-    this.#movieCountComponent = new MoviesCountView(this.#movies);
-    render(this.#movieCountComponent, this.#footerComponent.element);
   };
 
   #onShowMoreButtonClick = () => {
@@ -117,6 +108,7 @@ export default class MovieFeedPresenter {
       // console.log(this.#comments)
       // console.log(this.#commentComponent)
       // console.log(this.#popupComponent.element instanceof HTMLElement)
+
       for (let i = 0; i < this.#comments.length; i++) {
         this.#commentComponent = new CommentView(this.#comments[i]);
         render(this.#commentComponent, this.#popupComponent.element);
