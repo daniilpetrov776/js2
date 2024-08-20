@@ -6,6 +6,7 @@ import MoviesCountView from './view/footer-movie-count-view.js';
 import MovieFeedPresenter from './presenter/movie-feed-presenter.js';
 import './mock/mock.js';
 import MovieModel from './model/movie-model.js';
+import { calculateWatchedMovies, getUserRank } from './utils/user.js';
 
 export const siteMainElement = document.querySelector('.main');
 export const siteHeaderElement = document.querySelector('.header');
@@ -14,8 +15,10 @@ export const siteFooterElement = document.querySelector('.footer');
 
 const movieModel = new MovieModel();
 const movieFeedPresenter = new MovieFeedPresenter(siteMainElement, movieModel);
+const watchedMovies = calculateWatchedMovies(movieModel.get());
+const userRank = getUserRank(watchedMovies);
 
-render(new ProfileView(), siteHeaderElement);
+render(new ProfileView(userRank), siteHeaderElement);
 render(new FilterView(), siteMainElement);
 render(new SortView(), siteMainElement);
 render(new MoviesCountView(movieModel.get()), siteFooterElement);

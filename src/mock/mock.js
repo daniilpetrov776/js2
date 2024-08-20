@@ -175,31 +175,31 @@ const getMovieWriters = () => {
   return selectedWriters;
 };
 
-const alreadyWatched = getRandomBoolean();
-
-export const generateMovie = (id) => ({
-  id,
-  comments: getMovieComments(),
-  filmInfo: {
-    title: getMovieName(),
-    altTitle: getAlternativeMovieName(),
-    rating: getMovieRating(),
-    poster: getMoviePoster(),
-    ageRating: getAgeRating(),
-    director: getMovieDirector(),
-    writers: getMovieWriters(),
-    actors: getMovieActors(),
-    year: getMovieYear(),
-    country: getMovieCountry(),
-    duration: getMovieLength(),
-    genre: getMovieGenre(),
-    description: getMovieDescription(),
-  },
-  userDetails: {
-    watchlist: getRandomBoolean(),
-    alreadyWatched,
-    watchingDate: (alreadyWatched)  ? getCurrentTime() : null,
-    favorite: getRandomBoolean(),
-  },
-});
+export const generateMovie = (id) => {
+  const alreadyWatched = getRandomBoolean();
+  return {
+    id,
+    comments: getMovieComments(),
+    filmInfo: {
+      title: getMovieName(),
+      altTitle: getAlternativeMovieName(),
+      rating: getMovieRating(),
+      poster: getMoviePoster(),
+      ageRating: getAgeRating(),
+      director: getMovieDirector(),
+      writers: getMovieWriters(),
+      actors: getMovieActors(),
+      year: getMovieYear(),
+      country: getMovieCountry(),
+      duration: getMovieLength(),
+      genre: getMovieGenre(),
+      description: getMovieDescription(),
+    },
+    userDetails: {
+      watchlist: getRandomBoolean(),
+      alreadyWatched: alreadyWatched,
+      watchingDate: alreadyWatched  ? getCurrentTime() : null,
+      favorite: getRandomBoolean(),
+    },
+  };};
 
