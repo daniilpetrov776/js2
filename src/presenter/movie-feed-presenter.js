@@ -8,6 +8,9 @@ import ShowMoreButtonView from '../view/show-more-button-view.js';
 import EmptyFeedView from '../view/empty-feed-view.js';
 import CommentView from '../view/comment-view.js';
 import PopupCommentContainerView from '../view/popup-comment-container-view.js';
+import PopupCommentsView from '../view/comments-list-view.js';
+import PopupCommentswrapperView from '../view/comments-wrapper-view.js';
+import NewCommentView from '../view/new-comment-view.js';
 import { isEscapeKey } from '../utils/utils.js';
 
 const MOVIES_PER_STEP = 5;
@@ -20,6 +23,9 @@ export default class MovieFeedPresenter {
   #movieModel = null;
   #popupComponent = null;
   #commentContainer = new PopupCommentContainerView();
+  #popupCommentsWrapperComponent = new PopupCommentswrapperView();
+  #popupCommentsListComponent = new PopupCommentsView();
+  #newCommentComponent = new NewCommentView();
   #commentComponent = null;
 
   #movies = [];
@@ -86,8 +92,14 @@ export default class MovieFeedPresenter {
     const closePopup = () => {
       if (this.#popupComponent) {
         this.#popupComponent.element.remove();
-        document.body.classList.remove('hide-overflow');
         this.#popupComponent = null;
+        this.#popupCommentsWrapperComponent.element.remove();
+        this.#popupCommentsWrapperComponent = null;
+        if (this.#commentComponent) {
+          this.#commentComponent.element.remove();
+          this.#commentComponent = null;
+        }
+        document.body.classList.remove('hide-overflow');
       }
     };
 
@@ -105,22 +117,24 @@ export default class MovieFeedPresenter {
 
     const renderComment = () => {
       this.#comments = movie.comments;
-      // console.log(this.#comments)
-      // console.log(this.#commentComponent)
-      // console.log(this.#popupComponent.element instanceof HTMLElement)
 
       for (let i = 0; i < this.#comments.length; i++) {
         this.#commentComponent = new CommentView(this.#comments[i]);
-        render(this.#commentComponent, this.#popupComponent.element);
+        render(this.#commentComponent, this.#popupCommentsListComponent.element);
       }
     };
 
     const renderPopup = () => {
       if (!this.#popupComponent) {
         this.#popupComponent = new PopupView(movie);
-
+        this.#popupCommentsWrapperComponent = new PopupCommentswrapperView(movie);
       }
-      render(this.#popupComponent,this.#filmsContainer.element);
+      render(this.#popupComponent, this.#filmsContainer.element);
+      render(this.#commentContainer, this.#popupComponent.element);
+      render(this.#popupCommentsWrapperComponent, this.#commentContainer.element);
+      render(this.#popupCommentsListComponent,this.#popupCommentsWrapperComponent.element);
+
+      render(this.#newCommentComponent, this.#popupComponent.element);
       document.body.classList.add('hide-overflow');
       this.#popupComponent.setPopupClickHandler(() => {
         onCloseButtonClick();
