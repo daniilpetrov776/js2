@@ -5,6 +5,7 @@ import FilmsContainerView from '../view/films-container-view.js';
 import ShowMoreButtonView from '../view/show-more-button-view.js';
 import EmptyFeedView from '../view/empty-feed-view.js';
 import MoviePresenter from './movie-presenter.js';
+
 const MOVIES_PER_STEP = 5;
 export default class MovieFeedPresenter {
   #films = new FilmsView();
@@ -30,7 +31,6 @@ export default class MovieFeedPresenter {
   };
 
   #renderFeed = () => {
-
     render(this.#films, this.#siteElement);
     render(this.#filmsList, this.#films.element);
     render(this.#filmsContainer, this.#filmsList.element);
