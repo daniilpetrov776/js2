@@ -1,4 +1,4 @@
-import { render } from '../framework/render.js';
+import { remove, render } from '../framework/render.js';
 import FilmView from '../view/film-view.js';
 import PopupView from '../view/popup-view.js';
 import { isEscapeKey } from '../utils/utils.js';
@@ -9,6 +9,7 @@ export default class MoviePresenter {
   #movieContainer = null;
   #popupComponent = null;
   #commentsPresenter = null;
+  #movieComponent = null;
 
   constructor (movieContainer) {
     this.#movieContainer = movieContainer;
@@ -19,11 +20,16 @@ export default class MoviePresenter {
     this.#renderMovie(movie);
   };
 
-  #renderMovie = (movie) => {
-    const movieComponent = new FilmView(movie);
-    render(movieComponent, this.#movieContainer.element);
+  destroy = () => {
+    this.#closePopup();
+    remove(this.#movieComponent);
+  };
 
-    movieComponent.setMovieClickHandler(() => this.#renderMoviePopup(movie));
+  #renderMovie = (movie) => {
+    this.#movieComponent = new FilmView(movie);
+    render(this.#movieComponent, this.#movieContainer.element);
+
+    this.#movieComponent.setMovieClickHandler(() => this.#renderMoviePopup(movie));
   };
 
   #closePopup = () => {

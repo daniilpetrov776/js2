@@ -1,6 +1,6 @@
 import { getRandomInteger, getRandomNumber, getRandomElement, getRandomSubset, getRandomBoolean } from '../utils/utils.js';
 import { getRandomDate, getCurrentTime } from '../utils/tasks.js';
-
+import { nanoid } from 'nanoid';
 import { getMovieComments } from './comments.js';
 const MAX_AMOUNT_OF_ACTORS = 5;
 const MAX_AMOUNT_OF_WRITERS = 3;
@@ -175,10 +175,10 @@ const getMovieWriters = () => {
   return selectedWriters;
 };
 
-export const generateMovie = (id) => {
+export const generateMovie = () => {
   const alreadyWatched = getRandomBoolean();
   return {
-    id,
+    id: nanoid(),
     comments: getMovieComments(),
     filmInfo: {
       title: getMovieName(),
