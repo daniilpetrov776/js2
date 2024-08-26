@@ -1,4 +1,4 @@
-import { remove, render } from '../framework/render.js';
+import { remove, render, replace } from '../framework/render.js';
 import FilmView from '../view/film-view.js';
 import PopupView from '../view/popup-view.js';
 import { isEscapeKey } from '../utils/utils.js';
@@ -30,6 +30,20 @@ export default class MoviePresenter {
     render(this.#movieComponent, this.#movieContainer.element);
 
     this.#movieComponent.setMovieClickHandler(() => this.#renderMoviePopup(movie));
+
+    // this.#movieComponent = new FilmView(movie);
+
+    // if (this.#prevMovieComponent === null) {
+    //   render(this.#movieComponent, this.#movieContainer.element);
+    //   return;
+    // }
+
+    // if (this.#movieContainer.element.contains(this.#prevMovieComponent.element)) {
+    //   replace(this.#movieComponent, this.#prevMovieComponent);
+    // }
+
+    // this.#movieComponent.setMovieClickHandler(() => this.#renderMoviePopup(movie));
+    // remove(this.#prevMovieComponent);
   };
 
   #closePopup = () => {
