@@ -37,7 +37,7 @@ export default class MovieFeedPresenter {
   };
 
   #renderMovie = (movie) => {
-    const moviePresenter = new MoviePresenter(this.#filmsContainer);
+    const moviePresenter = new MoviePresenter(this.#filmsContainer, this.#handleMovieChange);
     moviePresenter.init(movie);
     this.#moviePresenters.set(movie.id, moviePresenter);
     // console.log(this.#moviePresenters);

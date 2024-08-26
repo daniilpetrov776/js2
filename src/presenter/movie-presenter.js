@@ -1,4 +1,4 @@
-import { remove, render, replace } from '../framework/render.js';
+import { remove, render} from '../framework/render.js';
 import FilmView from '../view/film-view.js';
 import PopupView from '../view/popup-view.js';
 import { isEscapeKey } from '../utils/utils.js';
@@ -10,9 +10,11 @@ export default class MoviePresenter {
   #popupComponent = null;
   #commentsPresenter = null;
   #movieComponent = null;
+  #changeData = null;
 
-  constructor (movieContainer) {
+  constructor (movieContainer, changeData) {
     this.#movieContainer = movieContainer;
+    this.#changeData = changeData;
   }
 
   init = (movie) => {
@@ -29,21 +31,26 @@ export default class MoviePresenter {
     this.#movieComponent = new FilmView(movie);
     render(this.#movieComponent, this.#movieContainer.element);
 
+
     this.#movieComponent.setMovieClickHandler(() => this.#renderMoviePopup(movie));
+    this.#movieComponent.setWatchListClickHandler(() => this.#handleWatchlistClick());
+    this.#movieComponent.setWatchedClickHandler(() => this.#handleWatchedClick());
+    this.#movieComponent.setFavoriteClickHandler(() => this.#handleFavoriteClick());
+  };
 
-    // this.#movieComponent = new FilmView(movie);
+  #handleWatchlistClick = () => {
+    this.#changeData({...this.#movie, isInWatchlist: !this.#movie.isInWatchlist});
+    console.log('в спискке')
+  };
 
-    // if (this.#prevMovieComponent === null) {
-    //   render(this.#movieComponent, this.#movieContainer.element);
-    //   return;
-    // }
+  #handleWatchedClick = () => {
+    this.#changeData({...this.#movie, isWatched: !this.#movie.isWatched});
+    console.log('смотрел')
+  };
 
-    // if (this.#movieContainer.element.contains(this.#prevMovieComponent.element)) {
-    //   replace(this.#movieComponent, this.#prevMovieComponent);
-    // }
-
-    // this.#movieComponent.setMovieClickHandler(() => this.#renderMoviePopup(movie));
-    // remove(this.#prevMovieComponent);
+  #handleFavoriteClick = () => {
+    this.#changeData({...this.#movie, isFavorite: !this.#movie.isFavorite});
+    console.log('любимый')
   };
 
   #closePopup = () => {
