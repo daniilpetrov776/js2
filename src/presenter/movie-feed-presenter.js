@@ -41,6 +41,7 @@ export default class MovieFeedPresenter {
     moviePresenter.init(movie);
     this.#moviePresenters.set(movie.id, moviePresenter);
     // console.log(this.#moviePresenters);
+    // console.log(this.#movies)
   };
 
   #renderFeed = () => {
