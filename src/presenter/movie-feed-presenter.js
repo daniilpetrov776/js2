@@ -5,6 +5,7 @@ import FilmsContainerView from '../view/films-container-view.js';
 import ShowMoreButtonView from '../view/show-more-button-view.js';
 import EmptyFeedView from '../view/empty-feed-view.js';
 import MoviePresenter from './movie-presenter.js';
+import PopupPresenter from './popup-presenter.js';
 import { updateItem } from '../utils/utils.js';
 
 const MOVIES_PER_STEP = 5;
@@ -13,6 +14,7 @@ export default class MovieFeedPresenter {
   #filmsList = new FilmsListView();
   #filmsContainer = new FilmsContainerView();
   #loadMoreMoviesComponent = new ShowMoreButtonView();
+  #popupPresenter = null;
   // #moviePresenter = new MoviePresenter(this.#filmsContainer);
   #siteElement = null;
   #movieModel = null;
@@ -34,10 +36,14 @@ export default class MovieFeedPresenter {
   #handleMovieChange = (updatedMovie) => {
     this.#movies = updateItem(this.#movies, updatedMovie);
     this.#moviePresenters.get(updatedMovie.id).init(updatedMovie);
+
+    if (this.#popupPresenter) {
+      this.#popupPresenter.init(updatedMovie);
+    }
   };
 
   #renderMovie = (movie) => {
-    const moviePresenter = new MoviePresenter(this.#filmsContainer, this.#handleMovieChange);
+    const moviePresenter = new MoviePresenter(this.#filmsContainer, this.#handleMovieChange, this.#renderMoviePopup);
     moviePresenter.init(movie);
     this.#moviePresenters.set(movie.id, moviePresenter);
     // console.log(this.#moviePresenters);
@@ -84,10 +90,27 @@ export default class MovieFeedPresenter {
     render(emptyMessageComponent, this.#films.element);
   };
 
+  #renderMoviePopup = (movie) => {
+    if (!this.#popupPresenter) {
+      this.#popupPresenter = new PopupPresenter(this.#filmsContainer, this.#removeMoviePopup, this.#handleMovieChange);
+      document.body.classList.add('hide-overflow');
+      this.#popupPresenter.init(movie);
+    }
+  };
+
+  #removeMoviePopup = () => {
+    this.#popupPresenter.destroy();
+    this.#popupPresenter = null;
+    document.body.classList.remove('hide-overflow');
+  };
+
   #clearMovies = () => {
     this.#moviePresenters.forEach((presenter) => presenter.destroy());
     this.#moviePresenters.clear();
     this.#renderMoviesCount = MOVIES_PER_STEP;
     remove(this.#loadMoreMoviesComponent);
   };
+
 }
+
+
