@@ -10,16 +10,9 @@ import PopupView from '../view/popup-view.js';
 export default class PopupPresenter {
   #movie = null;
   #popupComponent = null;
-  #commentComponent = null;
-  #newCommentComponent = null;
-  #commentContainer = null;
-  #popupCommentsWrapperComponent = null;
-  #popupCommentsListComponent = null;
   #container = null;
   #removePopup = null;
   #changeData = null;
-
-  #comments = [];
 
   constructor (container, removePopup, changeData) {
     this.#container = container;
@@ -33,13 +26,9 @@ export default class PopupPresenter {
     const prevPopupComponent = this.#popupComponent;
     this.#popupComponent = new PopupView(movie);
 
-    this.#popupComponent.setPopupClickHandler(() => {
-      this.#onCloseButtonClick();
-    });
     document.addEventListener('keydown', this.#onEscKeydown);
-    this.#popupComponent.setWatchListClickHandler(() => this.#handleWatchlistClick());
-    this.#popupComponent.setWatchedClickHandler(() => this.#handleWatchedClick());
-    this.#popupComponent.setFavoriteClickHandler(() => this.#handleFavoriteClick());
+    this.#setupPopupHandlers();
+
     if (prevPopupComponent === null) {
       render(this.#popupComponent, this.#container.element);
     } else {
@@ -47,24 +36,36 @@ export default class PopupPresenter {
       remove(prevPopupComponent);
     }
 
-
-    this.#commentContainer = new PopupCommentContainerView();
-    this.#popupCommentsWrapperComponent = new PopupCommentswrapperView(movie);
-    this.#popupCommentsListComponent = new PopupCommentsView();
-    this.#newCommentComponent = new NewCommentView();
     this.#renderComments();
   };
 
   destroy = () => {
     if (this.#popupComponent) {
       remove(this.#popupComponent);
-      if (this.#commentComponent) {
-        this.#popupCommentsWrapperComponent.element.remove();
-        this.#popupCommentsWrapperComponent = null;
-        this.#commentComponent.element.remove();
-        this.#commentComponent = null;
-      }
     }
+  };
+
+  #renderComments = () => {
+    const commentContainer = new PopupCommentContainerView();
+    const popupCommentsWrapperComponent = new PopupCommentswrapperView(this.#movie);
+    const popupCommentsListComponent = new PopupCommentsView();
+    const newCommentComponent = new NewCommentView();
+
+    render(commentContainer, this.#popupComponent.element);
+    render(popupCommentsWrapperComponent, commentContainer.element);
+    render(popupCommentsListComponent, popupCommentsWrapperComponent.element);
+    render(newCommentComponent, popupCommentsWrapperComponent.element);
+
+    this.#movie.comments.forEach((comment) => {
+      render(new CommentView(comment), popupCommentsListComponent.element);
+    });
+  };
+
+  #setupPopupHandlers = () => {
+    this.#popupComponent.setPopupClickHandler(this.#onCloseButtonClick);
+    this.#popupComponent.setWatchListClickHandler(this.#toggleUserDetail.bind(this, 'watchlist'));
+    this.#popupComponent.setWatchedClickHandler(this.#toggleUserDetail.bind(this, 'alreadyWatched'));
+    this.#popupComponent.setFavoriteClickHandler(this.#toggleUserDetail.bind(this, 'favorite'));
   };
 
   #onCloseButtonClick = () => {
@@ -72,61 +73,20 @@ export default class PopupPresenter {
     document.removeEventListener('keydown', this.#onEscKeydown);
   };
 
-  #closePopup = () => {
-    this.#removePopup();
-  };
-
   #onEscKeydown = (evt) => {
     if (isEscapeKey(evt)) {
-      this.#closePopup();
-      document.removeEventListener('keydown', this.#onEscKeydown);
+      this.#removePopup();
     }
   };
 
-  #renderComments = () => {
-    this.#comments = this.#movie.comments;
-    render(this.#commentContainer, this.#popupComponent.element);
-    render(this.#popupCommentsWrapperComponent, this.#commentContainer.element);
-    render(this.#popupCommentsListComponent,this.#popupCommentsWrapperComponent.element);
-    render(this.#newCommentComponent, this.#popupCommentsWrapperComponent.element);
-
-    for (let i = 0; i < this.#comments.length; i++) {
-      this.#commentComponent = new CommentView(this.#comments[i]);
-      render(this.#commentComponent, this.#popupCommentsListComponent.element);
-    }
-  };
-
-  #handleWatchlistClick = () => {
+  #toggleUserDetail = (detail) => {
+    // Универсальная функция для изменения поля userDetails
     this.#changeData({
       ...this.#movie,
       userDetails: {
         ...this.#movie.userDetails,
-        watchlist: !this.#movie.userDetails.watchlist
+        [detail]: !this.#movie.userDetails[detail]
       },
     });
-    // console.log('watchlist', this.#movie)
-  };
-
-  #handleWatchedClick = () => {
-    this.#changeData({
-      ...this.#movie,
-      userDetails: {
-        ...this.#movie.userDetails,
-        alreadyWatched: !this.#movie.userDetails.alreadyWatched
-      },
-    });
-    // console.log('watched', this.#movie)
-
-  };
-
-  #handleFavoriteClick = () => {
-    this.#changeData({
-      ...this.#movie,
-      userDetails: {
-        ...this.#movie.userDetails,
-        favorite: !this.#movie.userDetails.favorite
-      },
-    });
-    // console.log('favorite', this.#movie)
   };
 }

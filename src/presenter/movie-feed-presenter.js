@@ -15,9 +15,9 @@ export default class MovieFeedPresenter {
   #filmsContainer = new FilmsContainerView();
   #loadMoreMoviesComponent = new ShowMoreButtonView();
   #popupPresenter = null;
-  // #moviePresenter = new MoviePresenter(this.#filmsContainer);
   #siteElement = null;
   #movieModel = null;
+  #currentMovie = null;
 
   #movies = [];
   #renderMoviesCount = MOVIES_PER_STEP;
@@ -37,36 +37,44 @@ export default class MovieFeedPresenter {
     this.#movies = updateItem(this.#movies, updatedMovie);
     this.#moviePresenters.get(updatedMovie.id).init(updatedMovie);
 
-    if (this.#popupPresenter) {
+    if (this.#popupPresenter && this.#currentMovie.id === updatedMovie.id) {
       this.#popupPresenter.init(updatedMovie);
     }
   };
 
   #renderMovie = (movie) => {
-    const moviePresenter = new MoviePresenter(this.#filmsContainer, this.#handleMovieChange, this.#renderMoviePopup);
+    const moviePresenter = new MoviePresenter(this.#filmsContainer, this.#handleMovieChange, this.#addPopup);
     moviePresenter.init(movie);
     this.#moviePresenters.set(movie.id, moviePresenter);
-    // console.log(this.#moviePresenters);
-    // console.log(this.#movies)
   };
 
   #renderFeed = () => {
+    this.#renderBaseStructure();
+    this.#renderMovies();
+    this.#renderloadMoreMoviesComponent();
+  };
+
+  #renderBaseStructure = () => {
     render(this.#films, this.#siteElement);
     render(this.#filmsList, this.#films.element);
     render(this.#filmsContainer, this.#filmsList.element);
+  };
 
-    for (let i = 0; i < Math.min(this.#movies.length, MOVIES_PER_STEP); i++) {
-      this.#renderMovie(this.#movies[i]);
-      // this.#moviePresenter.init(this.#movies[i]);
-    }
-    // console.log(this.#moviePresenters);
+  #renderMovies = () => {
+    const movieCount = Math.min(this.#movies.length, MOVIES_PER_STEP);
+    this.#movies.slice(0, movieCount).forEach(this.#renderMovie);
+    this.#checkAndRenderEmptyFeed();
+  };
+
+  #checkAndRenderEmptyFeed = () => {
     if (this.#movies.length === 0) {
       this.#renderEmptyFeed();
     }
+  };
 
+  #renderloadMoreMoviesComponent = () => {
     if (this.#movies.length > MOVIES_PER_STEP) {
       render(this.#loadMoreMoviesComponent, this.#siteElement);
-
       this.#loadMoreMoviesComponent.setClickHandler(this.#onShowMoreButtonClick);
     }
   };
@@ -77,7 +85,10 @@ export default class MovieFeedPresenter {
       .forEach((movie) => this.#renderMovie(movie));
 
     this.#renderMoviesCount += MOVIES_PER_STEP;
+    this.#removeShowMoreButton();
+  };
 
+  #removeShowMoreButton = () => {
     if (this.#renderMoviesCount >= this.#movies.length) {
       this.#loadMoreMoviesComponent.element.remove();
       this.#loadMoreMoviesComponent.removeElement();
@@ -85,23 +96,39 @@ export default class MovieFeedPresenter {
   };
 
   #renderEmptyFeed = () => {
-    const emptyMessageComponent = new EmptyFeedView();
-
-    render(emptyMessageComponent, this.#films.element);
+    render(new EmptyFeedView(), this.#films.element);
   };
 
-  #renderMoviePopup = (movie) => {
+  #renderMoviePopup = () => {
     if (!this.#popupPresenter) {
       this.#popupPresenter = new PopupPresenter(this.#filmsContainer, this.#removeMoviePopup, this.#handleMovieChange);
+      this.#popupPresenter.init(this.#currentMovie);
+    }
+  };
+
+  #addPopup = (movie) => {
+    // if (this.#currentMovie && this.#currentMovie.id === movie.id) {
+    //   return;
+    // }
+
+    // if (this.#currentMovie && this.#currentMovie.id !== movie.id) {
+    // }
+    if (this.#currentMovie?.id !== movie.id) {
+
+      this.#removeMoviePopup();
+      this.#currentMovie = movie;
+      this.#renderMoviePopup();
       document.body.classList.add('hide-overflow');
-      this.#popupPresenter.init(movie);
     }
   };
 
   #removeMoviePopup = () => {
-    this.#popupPresenter.destroy();
-    this.#popupPresenter = null;
-    document.body.classList.remove('hide-overflow');
+    if (this.#popupPresenter) {
+      this.#popupPresenter.destroy();
+      this.#popupPresenter = null;
+      this.#currentMovie = null;
+      document.body.classList.remove('hide-overflow');
+    }
   };
 
   #clearMovies = () => {
@@ -110,7 +137,4 @@ export default class MovieFeedPresenter {
     this.#renderMoviesCount = MOVIES_PER_STEP;
     remove(this.#loadMoreMoviesComponent);
   };
-
 }
-
-
