@@ -1,5 +1,4 @@
 import FilterView from './view/filter-view.js';
-import SortView from './view/sort-view.js';
 import { render } from './framework/render.js';
 import ProfileView from './view/profile-view.js';
 import MoviesCountView from './view/footer-movie-count-view.js';
@@ -23,6 +22,5 @@ console.log(filters);
 console.log(filters.at(1).count);
 render(new ProfileView(userRank), siteHeaderElement);
 render(new FilterView(filters), siteMainElement);
-render(new SortView(), siteMainElement);
 render(new MoviesCountView(movieModel.get()), siteFooterElement);
 movieFeedPresenter.init();

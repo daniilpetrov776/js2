@@ -1,12 +1,15 @@
 import { remove, render } from '../framework/render.js';
 import FilmsView from '../view/films-view.js';
 import FilmsListView from '../view/films-list-view.js';
+import SortView from '../view/sort-view.js';
 import FilmsContainerView from '../view/films-container-view.js';
 import ShowMoreButtonView from '../view/show-more-button-view.js';
 import EmptyFeedView from '../view/empty-feed-view.js';
 import MoviePresenter from './movie-presenter.js';
 import PopupPresenter from './popup-presenter.js';
 import { updateItem } from '../utils/utils.js';
+import { SortType } from '../utils/const.js';
+import { sortByNewest, compareMoviesRating } from '../utils/tasks.js';
 
 const MOVIES_PER_STEP = 5;
 export default class MovieFeedPresenter {
@@ -14,10 +17,13 @@ export default class MovieFeedPresenter {
   #filmsList = new FilmsListView();
   #filmsContainer = new FilmsContainerView();
   #loadMoreMoviesComponent = new ShowMoreButtonView();
+  #sortComponent = new SortView();
   #popupPresenter = null;
   #siteElement = null;
   #movieModel = null;
   #currentMovie = null;
+  #currentSortType = SortType.DEFAULT;
+  #sourcedMovies = [];
 
   #movies = [];
   #renderMoviesCount = MOVIES_PER_STEP;
@@ -30,16 +36,47 @@ export default class MovieFeedPresenter {
 
   init = () => {
     this.#movies = [...this.#movieModel.get()];
+    this.#sourcedMovies = [...this.#movieModel.get()];
+    this.#renderSort();
     this.#renderFeed();
   };
 
   #handleMovieChange = (updatedMovie) => {
     this.#movies = updateItem(this.#movies, updatedMovie);
+    this.#sourcedMovies = updateItem(this.#sourcedMovies, updatedMovie);
     this.#moviePresenters.get(updatedMovie.id).init(updatedMovie);
 
     if (this.#popupPresenter && this.#currentMovie.id === updatedMovie.id) {
       this.#popupPresenter.init(updatedMovie);
     }
+  };
+
+  #sortMovies = (sortType) => {
+    switch (sortType) {
+      case SortType.DATE:
+        this.#movies.sort(sortByNewest);
+        break;
+      case SortType.RATING:
+        this.#movies.sort(compareMoviesRating);
+        break;
+      default:
+        this.#movies = [...this.#sourcedMovies];
+    }
+    this.#currentSortType = sortType;
+  };
+
+  #handleSortTypeChange = (sortType) => {
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+    this.#sortMovies(sortType);
+    this.#clearMovies();
+    this.#renderMovies();
+  };
+
+  #renderSort = () => {
+    render(this.#sortComponent, this.#siteElement);
+    this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
   };
 
   #renderMovie = (movie) => {
@@ -51,7 +88,6 @@ export default class MovieFeedPresenter {
   #renderFeed = () => {
     this.#renderBaseStructure();
     this.#renderMovies();
-    this.#renderloadMoreMoviesComponent();
   };
 
   #renderBaseStructure = () => {
@@ -64,6 +100,7 @@ export default class MovieFeedPresenter {
     const movieCount = Math.min(this.#movies.length, MOVIES_PER_STEP);
     this.#movies.slice(0, movieCount).forEach(this.#renderMovie);
     this.#checkAndRenderEmptyFeed();
+    this.#renderloadMoreMoviesComponent();
   };
 
   #checkAndRenderEmptyFeed = () => {
@@ -107,14 +144,8 @@ export default class MovieFeedPresenter {
   };
 
   #addPopup = (movie) => {
-    // if (this.#currentMovie && this.#currentMovie.id === movie.id) {
-    //   return;
-    // }
-
-    // if (this.#currentMovie && this.#currentMovie.id !== movie.id) {
-    // }
+    //Если есть текущий фильм и если id текущего фильма строго не равен id фильма, то выполни код ниже.
     if (this.#currentMovie?.id !== movie.id) {
-
       this.#removeMoviePopup();
       this.#currentMovie = movie;
       this.#renderMoviePopup();
