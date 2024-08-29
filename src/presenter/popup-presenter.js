@@ -13,6 +13,7 @@ export default class PopupPresenter {
   #container = null;
   #removePopup = null;
   #changeData = null;
+  #currentSortType = null;
 
   constructor (container, removePopup, changeData) {
     this.#container = container;
@@ -20,8 +21,9 @@ export default class PopupPresenter {
     this.#changeData = changeData;
   }
 
-  init = (movie) => {
+  init = (movie, currentSortType) => {
     this.#movie = movie;
+    this.#currentSortType = currentSortType;
 
     const prevPopupComponent = this.#popupComponent;
     this.#popupComponent = new PopupView(movie);

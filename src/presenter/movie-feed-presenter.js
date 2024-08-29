@@ -17,7 +17,7 @@ export default class MovieFeedPresenter {
   #filmsList = new FilmsListView();
   #filmsContainer = new FilmsContainerView();
   #loadMoreMoviesComponent = new ShowMoreButtonView();
-  #sortComponent = new SortView();
+  #sortComponent = null;
   #popupPresenter = null;
   #siteElement = null;
   #movieModel = null;
@@ -71,11 +71,14 @@ export default class MovieFeedPresenter {
     }
     this.#sortMovies(sortType);
     this.#clearMovies();
+    this.#clearSort();
+    this.#renderSort();
     this.#renderMovies();
   };
 
   #renderSort = () => {
-    render(this.#sortComponent, this.#siteElement);
+    this.#sortComponent = new SortView(this.#currentSortType);
+    render(this.#sortComponent, this.#siteElement, 'afterbegin');
     this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
   };
 
@@ -167,5 +170,9 @@ export default class MovieFeedPresenter {
     this.#moviePresenters.clear();
     this.#renderMoviesCount = MOVIES_PER_STEP;
     remove(this.#loadMoreMoviesComponent);
+  };
+
+  #clearSort = () => {
+    remove(this.#sortComponent);
   };
 }

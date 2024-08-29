@@ -5,7 +5,7 @@ const createNewPopupTemplate = (popup) => {
   const {filmInfo: {
     actors,
     ageRating,
-    alternativeTitle,
+    altTitle,
     country,
     description,
     director,
@@ -39,7 +39,7 @@ const createNewPopupTemplate = (popup) => {
           <div class="film-details__info-head">
             <div class="film-details__title-wrap">
               <h3 class="film-details__title">${title}</h3>
-              <p class="film-details__title-original">${alternativeTitle}</p>
+              <p class="film-details__title-original">${altTitle}</p>
             </div>
 
             <div class="film-details__rating">
