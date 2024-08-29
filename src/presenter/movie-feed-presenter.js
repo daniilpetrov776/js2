@@ -1,4 +1,4 @@
-import { remove, render } from '../framework/render.js';
+import { remove, render, replace } from '../framework/render.js';
 import FilmsView from '../view/films-view.js';
 import FilmsListView from '../view/films-list-view.js';
 import SortView from '../view/sort-view.js';
@@ -37,7 +37,7 @@ export default class MovieFeedPresenter {
   init = () => {
     this.#movies = [...this.#movieModel.get()];
     this.#sourcedMovies = [...this.#movieModel.get()];
-    this.#renderSort();
+    this.#renderSort(this.#siteElement);
     this.#renderFeed();
   };
 
@@ -71,14 +71,19 @@ export default class MovieFeedPresenter {
     }
     this.#sortMovies(sortType);
     this.#clearMovies();
-    this.#clearSort();
-    this.#renderSort();
     this.#renderMovies();
+    this.#renderSort();
   };
 
-  #renderSort = () => {
-    this.#sortComponent = new SortView(this.#currentSortType);
-    render(this.#sortComponent, this.#siteElement, 'afterbegin');
+  #renderSort = (container) => {
+    if (!this.#sortComponent) {
+      this.#sortComponent = new SortView(this.#currentSortType);
+      render(this.#sortComponent, container);
+    } else {
+      const updatedSortComponent = new SortView(this.#currentSortType);
+      replace(updatedSortComponent, this.#sortComponent);
+      this.#sortComponent = updatedSortComponent;
+    }
     this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
   };
 
@@ -170,9 +175,5 @@ export default class MovieFeedPresenter {
     this.#moviePresenters.clear();
     this.#renderMoviesCount = MOVIES_PER_STEP;
     remove(this.#loadMoreMoviesComponent);
-  };
-
-  #clearSort = () => {
-    remove(this.#sortComponent);
   };
 }
