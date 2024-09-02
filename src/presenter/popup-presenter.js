@@ -1,10 +1,5 @@
 import { render, replace, remove } from '../framework/render.js';
 import { isEscapeKey } from '../utils/utils.js';
-import CommentView from '../view/comment-view.js';
-import PopupCommentsView from '../view/comments-list-view.js';
-import PopupCommentContainerView from '../view/popup-comment-container-view.js';
-import PopupCommentswrapperView from '../view/comments-wrapper-view.js';
-import NewCommentView from '../view/new-comment-view.js';
 import PopupView from '../view/popup-view.js';
 
 export default class PopupPresenter {
@@ -37,30 +32,12 @@ export default class PopupPresenter {
       replace(this.#popupComponent, prevPopupComponent);
       remove(prevPopupComponent);
     }
-
-    this.#renderComments();
   };
 
   destroy = () => {
     if (this.#popupComponent) {
       remove(this.#popupComponent);
     }
-  };
-
-  #renderComments = () => {
-    const commentContainer = new PopupCommentContainerView();
-    const popupCommentsWrapperComponent = new PopupCommentswrapperView(this.#movie);
-    const popupCommentsListComponent = new PopupCommentsView();
-    const newCommentComponent = new NewCommentView();
-
-    render(commentContainer, this.#popupComponent.element);
-    render(popupCommentsWrapperComponent, commentContainer.element);
-    render(popupCommentsListComponent, popupCommentsWrapperComponent.element);
-    render(newCommentComponent, popupCommentsWrapperComponent.element);
-
-    this.#movie.comments.forEach((comment) => {
-      render(new CommentView(comment), popupCommentsListComponent.element);
-    });
   };
 
   #setupPopupHandlers = () => {

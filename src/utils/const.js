@@ -1,3 +1,5 @@
+export const EMOTIONS = ['smile', 'sleeping', 'puke', 'angry'];
+
 export const FilterType = {
   ALL: 'all',
   WATCHLIST: 'Watchlist',
@@ -10,3 +12,4 @@ export const SortType = {
   DATE: 'date',
   RATING: 'rating',
 };
+

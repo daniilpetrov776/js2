@@ -89,10 +89,7 @@ const getMovieRating = () => getRandomNumber(4);
 
 const getMovieYear = () => getRandomDate(1929, 1990);
 
-const getMovieLength = () => {
-  const movieTime = `${getRandomInteger(1, 3)}h ${getRandomInteger(0, 59)}m`;
-  return movieTime;
-};
+const getMovieLength = () => getRandomInteger(37, 280);
 
 const getMovieDirector = () => {
   const directors = [

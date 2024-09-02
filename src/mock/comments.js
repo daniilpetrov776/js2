@@ -8,7 +8,7 @@ const comments = [
     id: 0,
     author: 'Elena Novak',
     comment: 'Отличный фильм',
-    date: '2021-09-23T12:34:56.654Z',
+    date: '2024-08-23T12:34:56.654Z',
     emotion: commentEmotion[getRandomInteger(0, commentEmotion.length - 1)]
   },
   {

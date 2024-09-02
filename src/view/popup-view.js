@@ -1,5 +1,8 @@
-import AbstractView from '../framework/view/abstract-view.js';
-import { dateToMDY } from '../utils/tasks.js';
+// import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
+import { createNewCommentsTemplate } from './popup-comments-template.js';
+import { createPopupFormTemplate } from './popup-form-template';
+import { dateToMDY, minutesToTime } from '../utils/tasks.js';
 
 const createNewPopupTemplate = (popup) => {
   const {filmInfo: {
@@ -16,6 +19,9 @@ const createNewPopupTemplate = (popup) => {
     rating,
     title,
     year},
+  comments,
+  // comment,
+  checkedEmotion,
   userDetails: {
     watchlist,
     alreadyWatched,
@@ -23,7 +29,7 @@ const createNewPopupTemplate = (popup) => {
   }
   } = popup;
   return (`<section class="film-details">
-  <form class="film-details__inner" action="" method="get">
+  <div class="film-details__inner">
     <div class="film-details__top-container">
       <div class="film-details__close">
         <button class="film-details__close-btn" type="button">close</button>
@@ -66,7 +72,7 @@ const createNewPopupTemplate = (popup) => {
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Runtime</td>
-              <td class="film-details__cell">${duration}</td>
+              <td class="film-details__cell">${minutesToTime(duration)}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Country</td>
@@ -100,21 +106,78 @@ const createNewPopupTemplate = (popup) => {
         ${(favorite) ? 'film-details__control-button--active' : ''} " id="favorite" name="favorite">Add to favorites</button>
       </section>
     </div>
-  </form>
+    <div class="film-details__bottom-container">
+          <section class="film-details__comments-wrap">
+            <h3 class="film-details__comments-title">
+              Comments <span class="film-details__comments-count">${popup.comments.length}</span>
+            </h3>
+
+            ${createNewCommentsTemplate(comments)}
+
+            ${createPopupFormTemplate(checkedEmotion)}
+
+          </section>
+        </div>
+  </div>
 </section>
 `);
 };
-export default class PopupView extends AbstractView {
+export default class PopupView extends AbstractStatefulView {
   #popup = null;
 
   constructor(popup) {
     super();
-    this.#popup = popup;
+    this._state = PopupView.parsePopupToState(popup);
+    this.#setInnerHandlers();
   }
 
   get template() {
-    return createNewPopupTemplate(this.#popup);
+    // console.log(this._state);
+    return createNewPopupTemplate(this._state);
   }
+
+  _restoreHandlers = () => {
+    this.#setInnerHandlers();
+  };
+
+  #setInnerHandlers = () => {
+    this.element .querySelectorAll('.film-details__emoji-label').forEach((element) => {
+      element.addEventListener('click', this.#commentEmotionHandler);
+    });
+    this.element.querySelector('.film-details__comment-input').addEventListener('input', this.#commentInputHandler);
+  };
+
+  #commentEmotionHandler = (evt) => {
+    evt.preventDefault();
+    this.updateElement({
+      checkedEmotion: evt.currentTarget.closest('.film-details__emoji-label').dataset.emotion,
+      scrollPosition: this.element.scrollTop
+    });
+  };
+
+  #commentInputHandler = (evt) => {
+    evt.preventDefault();
+    this._setState({
+      comment: evt.target.value
+    });
+  };
+
+  static parsePopupToState = (
+    popup,
+    checkedEmotion = null,
+    comment = null,
+    scrollPosition = 0,
+  ) => ({...popup,
+    checkedEmotion,
+    comment,
+    scrollPosition
+  });
+
+  static parseStateToPupup = (state) => {
+    const popup = {...state};
+    return popup;
+  };
+
 
   setPopupClickHandler = (callback) => {
     this._callback.click = callback;
