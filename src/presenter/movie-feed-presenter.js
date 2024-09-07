@@ -44,8 +44,9 @@ export default class MovieFeedPresenter {
     const filterType = this.#filterModel.filter;
 
     const movies = this.#movieModel.get();
-    const filteredmovies = filter[filterType](movies);
 
+    const filteredmovies = filter[filterType](movies);
+    console.log(filteredmovies)
     switch (this.#currentSortType) {
       case SortType.DATE:
         return filteredmovies.sort(sortByNewest);
@@ -90,30 +91,22 @@ export default class MovieFeedPresenter {
     switch (updateType) {
       case UpdateType.PATCH:
         this.#moviePresenters.get(data.id).init(data);
+        if (this.#popupPresenter) {
+          this.#popupPresenter.init(data);
+        }
+
         // - обновить часть списка (например, когда поменялось описание)
         break;
       case UpdateType.MINOR:
         // - обновить список (например, когда задача ушла в архив)
         break;
       case UpdateType.MAJOR:
+        console.log(data)
+        // this.#clearMovies();
         // - обновить всю доску (например, при переключении фильтра)
         break;
     }
   };
-
-  // #sortMovies = (sortType) => {
-  //   switch (sortType) {
-  //     case SortType.DATE:
-  //       this.#movies.sort(sortByNewest);
-  //       break;
-  //     case SortType.RATING:
-  //       this.#movies.sort(compareMoviesRating);
-  //       break;
-  //     default:
-  //       this.#movies = [...this.#sourcedMovies];
-  //   }
-  //   this.#currentSortType = sortType;
-  // };
 
   #handleSortTypeChange = (sortType) => {
     if (this.#currentSortType === sortType) {
@@ -157,9 +150,7 @@ export default class MovieFeedPresenter {
 
   #renderMoviesList = () => {
     const moviesCount = this.movies.length;
-    console.log(moviesCount);
     const newRenderedMoviesCount =  Math.min(moviesCount, this.#renderMoviesCount + MOVIES_PER_STEP);
-    console.log(newRenderedMoviesCount);
     const movies = this.movies.slice(this.#renderMoviesCount, newRenderedMoviesCount);
     this.#renderMovies(movies);
     this.#checkAndRenderEmptyFeed();

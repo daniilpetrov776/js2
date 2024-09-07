@@ -1,4 +1,3 @@
-import FilterView from './view/filter-view.js';
 import { render } from './framework/render.js';
 import ProfileView from './view/profile-view.js';
 import MoviesCountView from './view/footer-movie-count-view.js';
@@ -8,7 +7,6 @@ import './mock/mock.js';
 import MovieModel from './model/movie-model.js';
 import FilterModel from './model/filter-model.js';
 import { calculateWatchedMovies, getUserRank } from './utils/user.js';
-import { generateFilter } from './mock/filters.js';
 
 export const siteMainElement = document.querySelector('.main');
 export const siteHeaderElement = document.querySelector('.header');
