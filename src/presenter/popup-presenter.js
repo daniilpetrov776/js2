@@ -1,5 +1,6 @@
 import { render, replace, remove } from '../framework/render.js';
 import { isEscapeKey } from '../utils/utils.js';
+import { UserAction, UpdateType } from '../utils/const.js';
 import PopupView from '../view/popup-view.js';
 
 export default class PopupPresenter {
@@ -60,12 +61,15 @@ export default class PopupPresenter {
 
   #toggleUserDetail = (detail) => {
     // Универсальная функция для изменения поля userDetails
-    this.#changeData({
-      ...this.#movie,
-      userDetails: {
-        ...this.#movie.userDetails,
-        [detail]: !this.#movie.userDetails[detail]
-      },
-    });
+    this.#changeData(
+      UserAction.UPDATE_MOVIE,
+      UpdateType.PATCH,
+      {
+        ...this.#movie,
+        userDetails: {
+          ...this.#movie.userDetails,
+          [detail]: !this.#movie.userDetails[detail]
+        },
+      });
   };
 }

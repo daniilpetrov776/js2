@@ -1,5 +1,6 @@
 import { remove, render, replace } from '../framework/render.js';
 import FilmsView from '../view/films-view.js';
+import {filter} from '../utils/filter.js';
 import FilmsListView from '../view/films-list-view.js';
 import SortView from '../view/sort-view.js';
 import FilmsContainerView from '../view/films-container-view.js';
@@ -23,27 +24,35 @@ export default class MovieFeedPresenter {
   #movieModel = null;
   #currentMovie = null;
   #currentSortType = SortType.DEFAULT;
+  #filterModel = null;
   // #sourcedMovies = [];
 
   // #movies = [];
   #renderMoviesCount = MOVIES_PER_STEP;
   #moviePresenters = new Map();
 
-  constructor (siteElement, movieModel) {
+  constructor (siteElement, movieModel, filterModel) {
     this.#siteElement = siteElement;
     this.#movieModel = movieModel;
+    this.#filterModel = filterModel;
 
     this.#movieModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   get movies() {
+    const filterType = this.#filterModel.filter;
+
+    const movies = this.#movieModel.get();
+    const filteredmovies = filter[filterType](movies);
+
     switch (this.#currentSortType) {
       case SortType.DATE:
-        return [...this.#movieModel.get()].sort(sortByNewest);
+        return filteredmovies.sort(sortByNewest);
       case SortType.RATING:
-        return [...this.#movieModel.get()].sort(compareMoviesRating);
+        return filteredmovies.sort(compareMoviesRating);
     }
-    return this.#movieModel.get();
+    return filteredmovies;
   }
 
   init = () => {
