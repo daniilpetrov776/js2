@@ -24,6 +24,7 @@ export default class MovieFeedPresenter {
   #movieModel = null;
   #currentMovie = null;
   #currentSortType = SortType.DEFAULT;
+  #currentFilterType = FilterType.ALL;
   #filterModel = null;
 
   #renderMoviesCount = MOVIES_PER_STEP;
@@ -39,11 +40,12 @@ export default class MovieFeedPresenter {
   }
 
   get movies() {
-    const filterType = this.#filterModel.get();
+    this.#currentFilterType = this.#filterModel.get();
+    // const filterType = this.#filterModel.get();
 
     const movies = this.#movieModel.get();
 
-    const filteredmovies = filter[filterType](movies);
+    const filteredmovies = filter[this.#currentFilterType](movies);
     switch (this.#currentSortType) {
       case SortType.DATE:
         return filteredmovies.sort(sortByNewest);
@@ -104,9 +106,11 @@ export default class MovieFeedPresenter {
   };
 
   #renderSort = () => {
-    this.#sortComponent = new SortView(this.#currentSortType);
-    this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
-    render(this.#sortComponent, this.#siteElement);
+    if (this.movies.length > 0) {
+      this.#sortComponent = new SortView(this.#currentSortType);
+      this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
+      render(this.#sortComponent, this.#siteElement);
+    }
   };
 
   #renderMovie = (movie) => {
@@ -118,6 +122,7 @@ export default class MovieFeedPresenter {
   #renderFeed = () => {
     const movies = this.movies;
     const moviesCount = movies.length;
+    this.#renderMoviesCount = MOVIES_PER_STEP;
 
     this.#renderSort(this.#siteElement);
 
@@ -171,7 +176,7 @@ export default class MovieFeedPresenter {
   };
 
   #renderEmptyFeed = () => {
-    this.#emptyFeedComponent = new EmptyFeedView();
+    this.#emptyFeedComponent = new EmptyFeedView(this.#currentFilterType);
     render(this.#emptyFeedComponent, this.#films.element);
   };
 
@@ -206,9 +211,11 @@ export default class MovieFeedPresenter {
     this.#moviePresenters.clear();
 
     remove(this.#sortComponent);
-    remove(this.#emptyFeedComponent);
     remove(this.#loadMoreMoviesComponent);
 
+    if (this.#emptyFeedComponent) {
+      remove(this.#emptyFeedComponent);
+    }
     if (resetRenderedMoviesCount) {
       this.#renderMoviesCount = MOVIES_PER_STEP;
     }
