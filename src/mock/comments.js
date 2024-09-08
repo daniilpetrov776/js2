@@ -83,6 +83,8 @@ const comments = [
   }
 ];
 
+export const getAllComments = ()  => comments;
+
 export const getMovieComments = () => {
   const hasComments = getRandomBoolean();
   const filmCommentsCount = (hasComments)
@@ -91,6 +93,6 @@ export const getMovieComments = () => {
   if (filmCommentsCount === 0) {
     return [];
   }
-  return getRandomSubset(comments, filmCommentsCount);
+  return getRandomSubset(getAllComments(), filmCommentsCount);
 };
 

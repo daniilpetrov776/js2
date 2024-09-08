@@ -59,6 +59,10 @@ export default class PopupPresenter {
     }
   };
 
+  #commentDeleteClickHandler = (commentId) => {
+
+  }
+
   #toggleUserDetail = (detail) => {
     // Универсальная функция для изменения поля userDetails
     this.#changeData(
