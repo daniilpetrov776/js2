@@ -1,4 +1,4 @@
-import { remove, render, replace } from '../framework/render.js';
+import { remove, render } from '../framework/render.js';
 import FilmsView from '../view/films-view.js';
 import {filter} from '../utils/filter.js';
 import FilmsListView from '../view/films-list-view.js';
@@ -8,8 +8,7 @@ import ShowMoreButtonView from '../view/show-more-button-view.js';
 import EmptyFeedView from '../view/empty-feed-view.js';
 import MoviePresenter from './movie-presenter.js';
 import PopupPresenter from './popup-presenter.js';
-// import { updateItem } from '../utils/utils.js';
-import { SortType, UpdateType, UserAction } from '../utils/const.js';
+import { FilterType, SortType, UpdateType, UserAction } from '../utils/const.js';
 import { sortByNewest, compareMoviesRating } from '../utils/tasks.js';
 
 const MOVIES_PER_STEP = 5;
@@ -17,17 +16,16 @@ export default class MovieFeedPresenter {
   #films = new FilmsView();
   #filmsList = new FilmsListView();
   #filmsContainer = new FilmsContainerView();
-  #loadMoreMoviesComponent = new ShowMoreButtonView();
+  #loadMoreMoviesComponent = null;
   #sortComponent = null;
   #popupPresenter = null;
   #siteElement = null;
+  #emptyFeedComponent = null;
   #movieModel = null;
   #currentMovie = null;
   #currentSortType = SortType.DEFAULT;
   #filterModel = null;
-  // #sourcedMovies = [];
 
-  // #movies = [];
   #renderMoviesCount = MOVIES_PER_STEP;
   #moviePresenters = new Map();
 
@@ -41,12 +39,11 @@ export default class MovieFeedPresenter {
   }
 
   get movies() {
-    const filterType = this.#filterModel.filter;
+    const filterType = this.#filterModel.get();
 
     const movies = this.#movieModel.get();
 
     const filteredmovies = filter[filterType](movies);
-    console.log(filteredmovies)
     switch (this.#currentSortType) {
       case SortType.DATE:
         return filteredmovies.sort(sortByNewest);
@@ -57,21 +54,8 @@ export default class MovieFeedPresenter {
   }
 
   init = () => {
-    // this.#movies = [...this.#movieModel.get()];
-    // this.#sourcedMovies = [...this.#movieModel.get()];
-    this.#renderSort(this.#siteElement);
     this.#renderFeed();
   };
-
-  // #handleMovieChange = (updatedMovie) => {
-  //   // this.#movies = updateItem(this.#movies, updatedMovie);
-  //   // this.#sourcedMovies = updateItem(this.#sourcedMovies, updatedMovie);
-  //   this.#moviePresenters.get(updatedMovie.id).init(updatedMovie);
-
-  //   if (this.#popupPresenter && this.#currentMovie.id === updatedMovie.id) {
-  //     this.#popupPresenter.init(updatedMovie);
-  //   }
-  // };
 
   #handleViewAction = (actionType, updateType, update) => {
     switch (actionType) {
@@ -94,16 +78,18 @@ export default class MovieFeedPresenter {
         if (this.#popupPresenter) {
           this.#popupPresenter.init(data);
         }
+        if (this.#filterModel.get() !== FilterType.ALL) {
+          this.#handleModelEvent(UpdateType.MINOR);
+        }
 
-        // - обновить часть списка (например, когда поменялось описание)
         break;
       case UpdateType.MINOR:
-        // - обновить список (например, когда задача ушла в архив)
+        this.#clearMovies();
+        this.#renderFeed();
         break;
       case UpdateType.MAJOR:
-        console.log(data)
-        // this.#clearMovies();
-        // - обновить всю доску (например, при переключении фильтра)
+        this.#clearMovies({resetRenderedFilmCount: true, resetSortType: true});
+        this.#renderFeed();
         break;
     }
   };
@@ -113,22 +99,14 @@ export default class MovieFeedPresenter {
       return;
     }
     this.#currentSortType = sortType;
-    // this.#sortMovies(sortType);
-    this.#clearMovies();
-    this.#renderMoviesList();
-    this.#renderSort();
+    this.#clearMovies({resetRenderedMoviesCount: true});
+    this.#renderFeed();
   };
 
-  #renderSort = (container) => {
-    if (!this.#sortComponent) {
-      this.#sortComponent = new SortView(this.#currentSortType);
-      render(this.#sortComponent, container);
-    } else {
-      const updatedSortComponent = new SortView(this.#currentSortType);
-      replace(updatedSortComponent, this.#sortComponent);
-      this.#sortComponent = updatedSortComponent;
-    }
+  #renderSort = () => {
+    this.#sortComponent = new SortView(this.#currentSortType);
     this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
+    render(this.#sortComponent, this.#siteElement);
   };
 
   #renderMovie = (movie) => {
@@ -138,23 +116,25 @@ export default class MovieFeedPresenter {
   };
 
   #renderFeed = () => {
+    const movies = this.movies;
+    const moviesCount = movies.length;
+
+    this.#renderSort(this.#siteElement);
+
     this.#renderBaseStructure();
-    this.#renderMoviesList();
+    this.#checkAndRenderEmptyFeed();
+
+    this.#renderMovies(movies.slice(0, Math.min(moviesCount, this.#renderMoviesCount)));
+
+    if (moviesCount > this.#renderMoviesCount) {
+      this.#renderloadMoreMoviesComponent();
+    }
   };
 
   #renderBaseStructure = () => {
     render(this.#films, this.#siteElement);
     render(this.#filmsList, this.#films.element);
     render(this.#filmsContainer, this.#filmsList.element);
-  };
-
-  #renderMoviesList = () => {
-    const moviesCount = this.movies.length;
-    const newRenderedMoviesCount =  Math.min(moviesCount, this.#renderMoviesCount + MOVIES_PER_STEP);
-    const movies = this.movies.slice(this.#renderMoviesCount, newRenderedMoviesCount);
-    this.#renderMovies(movies);
-    this.#checkAndRenderEmptyFeed();
-    this.#renderloadMoreMoviesComponent();
   };
 
   #renderMovies = (movies) => {
@@ -169,8 +149,9 @@ export default class MovieFeedPresenter {
 
   #renderloadMoreMoviesComponent = () => {
     if (this.movies.length > MOVIES_PER_STEP) {
-      render(this.#loadMoreMoviesComponent, this.#siteElement);
+      this.#loadMoreMoviesComponent = new ShowMoreButtonView();
       this.#loadMoreMoviesComponent.setClickHandler(this.#onShowMoreButtonClick);
+      render(this.#loadMoreMoviesComponent, this.#siteElement);
     }
   };
 
@@ -190,7 +171,8 @@ export default class MovieFeedPresenter {
   };
 
   #renderEmptyFeed = () => {
-    render(new EmptyFeedView(), this.#films.element);
+    this.#emptyFeedComponent = new EmptyFeedView();
+    render(this.#emptyFeedComponent, this.#films.element);
   };
 
   #renderMoviePopup = () => {
@@ -219,10 +201,19 @@ export default class MovieFeedPresenter {
     }
   };
 
-  #clearMovies = () => {
+  #clearMovies = ({resetRenderedMoviesCount = false, resetSortType = false} = {}) => {
     this.#moviePresenters.forEach((presenter) => presenter.destroy());
     this.#moviePresenters.clear();
-    this.#renderMoviesCount = MOVIES_PER_STEP;
+
+    remove(this.#sortComponent);
+    remove(this.#emptyFeedComponent);
     remove(this.#loadMoreMoviesComponent);
+
+    if (resetRenderedMoviesCount) {
+      this.#renderMoviesCount = MOVIES_PER_STEP;
+    }
+    if (resetSortType) {
+      this.#currentSortType = SortType.DEFAULT;
+    }
   };
 }

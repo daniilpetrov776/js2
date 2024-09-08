@@ -7,7 +7,7 @@ export default class FilterPresenter {
   #filterContainer = null;
   #filterModel = null;
   #movieModel = null;
-
+  #currentFilter = null;
   #filterComponent = null;
 
   constructor(filterContainer, filterModel, movieModel) {
@@ -25,31 +25,28 @@ export default class FilterPresenter {
     return [
       {
         type: FilterType.ALL,
-        name: 'All',
         count: filter[FilterType.ALL](movies).length,
       },
       {
-        type: FilterType.FAVORITES,
-        name: 'Favorites',
-        count: filter[FilterType.FAVORITES](movies).length,
+        type: FilterType.WATCHLIST,
+        count: filter[FilterType.WATCHLIST](movies).length,
       },
       {
         type: FilterType.HISTORY,
-        name: 'History',
         count: filter[FilterType.HISTORY](movies).length,
       },
       {
-        type: FilterType.WATCHLIST,
-        name: 'Watchlist',
-        count: filter[FilterType.WATCHLIST](movies).length,
+        type: FilterType.FAVORITES,
+        count: filter[FilterType.FAVORITES](movies).length,
       },
     ];
   }
 
   init = () => {
+    this.#currentFilter = this.#filterModel.get();
     const filters = this.filters;
     const prevFilterComponent = this.#filterComponent;
-    this.#filterComponent = new FilterView(filters, this.#filterModel.filter);
+    this.#filterComponent = new FilterView(filters, this.#currentFilter);
     this.#filterComponent.setFilterTypeChangeHandler(this.#handleFilterTypeChange);
 
     if (prevFilterComponent === null) {
@@ -66,11 +63,10 @@ export default class FilterPresenter {
   };
 
   #handleFilterTypeChange = (filterType) => {
-    if (this.#filterModel.filter === filterType) {
+    if (this.#filterModel.get === filterType) {
       return;
     }
-    console.log('z')
 
-    this.#filterModel.setFilter(UpdateType.MAJOR, filterType);
+    this.#filterModel.set(UpdateType.MAJOR, filterType);
   };
 }
