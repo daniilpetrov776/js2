@@ -124,10 +124,14 @@ const createNewPopupTemplate = (popup) => {
 };
 export default class PopupView extends AbstractStatefulView {
   #popup = null;
+  #movieData = null;
+  #updateMovieData = null;
 
-  constructor(popup) {
+  constructor(popup, movieData, updateMovieData) {
     super();
-    this._state = PopupView.parsePopupToState(popup);
+    this.#movieData = movieData;
+    this.#updateMovieData = updateMovieData;
+    this._state = PopupView.parsePopupToState(popup, movieData.emotion, movieData.comments, movieData.scrollPosition, updateMovieData);
     this.#setInnerHandlers();
   }
 
@@ -138,6 +142,8 @@ export default class PopupView extends AbstractStatefulView {
 
   _restoreHandlers = () => {
     this.#setInnerHandlers();
+    this.setScrollPosition();
+    this.setCommentDeleteClickHandler(this._callback.commentDeleteClick);
   };
 
   #setInnerHandlers = () => {
@@ -145,6 +151,17 @@ export default class PopupView extends AbstractStatefulView {
       element.addEventListener('click', this.#commentEmotionHandler);
     });
     this.element.querySelector('.film-details__comment-input').addEventListener('input', this.#commentInputHandler);
+  };
+
+  setCommentDeleteClickHandler = (callback) => {
+    const commentsDelete = this.element.querySelectorAll('.film-details__comment-delete');
+
+    if (commentsDelete) {
+      this._callback.commentDeleteClick = callback;
+      commentsDelete.forEach(
+        (element) => element.addEventListener('click', this.#commentDeleteClickHandler)
+      );
+    }
   };
 
   #commentEmotionHandler = (evt) => {
@@ -160,6 +177,21 @@ export default class PopupView extends AbstractStatefulView {
     this._setState({
       comment: evt.target.value
     });
+  };
+
+  #updateData = () => {
+    this.#updateMovieData({
+      emotion: this._state.checkedEmotion,
+      comment: this._state.comment,
+      scrollPosition: this.element.scrollTop
+    });
+  };
+
+  #commentDeleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#updateData();
+    console.log(evt.target.dataset)
+    this._callback.commentDeleteClick(evt.target.dataset.commentId);
   };
 
   static parsePopupToState = (
@@ -178,6 +210,9 @@ export default class PopupView extends AbstractStatefulView {
     return popup;
   };
 
+  setScrollPosition = () => {
+    this.element.scrollTop = this._state.scrollPosition;
+  };
 
   setPopupClickHandler = (callback) => {
     this._callback.click = callback;
@@ -207,17 +242,19 @@ export default class PopupView extends AbstractStatefulView {
 
   #watchlistClickHandler = (evt) => {
     evt.preventDefault();
+    this.#updateData();
     this._callback.watchlistClick();
   };
 
   #watchedClickHandler = (evt) => {
     evt.preventDefault();
+    this.#updateData();
     this._callback.watchClick();
   };
 
   #favoriteClickHandler = (evt) => {
     evt.preventDefault();
+    this.#updateData();
     this._callback.favorite();
-
   };
 }

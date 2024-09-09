@@ -68,16 +68,21 @@ export default class MovieFeedPresenter {
         this.#movieModel.addMovieComment(updateType, update);
         break;
       case UserAction.DELETE_COMMENT:
+        this.#movieModel.updateMovie(updateType, update);
         this.#movieModel.deleteMovieComment(updateType, update);
         break;
     }
   };
 
   #handleModelEvent = (updateType, data) => {
+    console.log(data)
     switch (updateType) {
       case UpdateType.PATCH:
-        this.#moviePresenters.get(data.id).init(data);
-        if (this.#popupPresenter) {
+        if (this.#moviePresenters.get(data.id)) {
+          this.#moviePresenters.get(data.id).init(data);
+        }
+        if (this.#popupPresenter && this.#currentMovie.id === data.id) {
+          this.#currentMovie = data;
           this.#popupPresenter.init(data);
         }
         if (this.#filterModel.get() !== FilterType.ALL) {

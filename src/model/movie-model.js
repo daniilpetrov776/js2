@@ -28,6 +28,7 @@ export default class movieModel extends Observable {
   get = () => this.#movies;
 
   updateMovie = (updateType, update) => {
+
     const index = this.#movies.findIndex((movie) => movie.id === update.id);
 
     if (index === -1) {
@@ -49,8 +50,11 @@ export default class movieModel extends Observable {
   };
 
   deleteMovieComment = (updateType, update) => {
+    console.log(update)
+    console.log(update.deletedComment)
+    console.log(this.#allComments)
     const index = this.#allComments.findIndex(
-      (comment) => comment.id === update.id
+      (comment) => comment.id === update.deletedComment.id
     );
 
     if (index === -1) {
@@ -62,6 +66,7 @@ export default class movieModel extends Observable {
       ...this.#allComments.slice(index + 1),
     ];
 
-    this._notify(updateType);
+    console.log(this.#allComments)
+    this._notify(updateType, update);
   };
 }

@@ -1,6 +1,6 @@
 import { dateToRelativeTime } from '../utils/tasks.js';
 
-const createCommentTemplate = ({emotion, comment, author, date}) =>
+const createCommentTemplate = ({id, emotion, comment, author, date}) =>
   `
     <li class="film-details__comment">
       <span class="film-details__comment-emoji">
@@ -11,7 +11,7 @@ const createCommentTemplate = ({emotion, comment, author, date}) =>
         <p class="film-details__comment-info">
           <span class="film-details__comment-author">${author}</span>
           <span class="film-details__comment-day">${dateToRelativeTime(date)}</span>
-          <button class="film-details__comment-delete">Delete</button>
+          <button class="film-details__comment-delete"  data-comment-id=${id}>Delete</button>
         </p>
       </div>
     </li>
