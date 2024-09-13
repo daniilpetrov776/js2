@@ -20,7 +20,7 @@ const createNewPopupTemplate = (popup) => {
     title,
     year},
   comments,
-  // comment,
+  comment,
   checkedEmotion,
   userDetails: {
     watchlist,
@@ -114,7 +114,7 @@ const createNewPopupTemplate = (popup) => {
 
             ${createNewCommentsTemplate(comments)}
 
-            ${createPopupFormTemplate(checkedEmotion)}
+            ${createPopupFormTemplate(checkedEmotion, comment)}
 
           </section>
         </div>
@@ -131,7 +131,7 @@ export default class PopupView extends AbstractStatefulView {
     super();
     this.#movieData = movieData;
     this.#updateMovieData = updateMovieData;
-    this._state = PopupView.parsePopupToState(popup, movieData.emotion, movieData.comments, movieData.scrollPosition, updateMovieData);
+    this._state = PopupView.parsePopupToState(popup, movieData.emotion, movieData.comment, movieData.scrollPosition, updateMovieData);
     this.#setInnerHandlers();
   }
 
@@ -153,6 +153,10 @@ export default class PopupView extends AbstractStatefulView {
     this.element.querySelector('.film-details__comment-input').addEventListener('input', this.#commentInputHandler);
   };
 
+  setCommentData = () => {
+    this.#updateData();
+  };
+
   setCommentDeleteClickHandler = (callback) => {
     const commentsDelete = this.element.querySelectorAll('.film-details__comment-delete');
 
@@ -166,6 +170,7 @@ export default class PopupView extends AbstractStatefulView {
 
   #commentEmotionHandler = (evt) => {
     evt.preventDefault();
+    this.#updateData();
     this.updateElement({
       checkedEmotion: evt.currentTarget.closest('.film-details__emoji-label').dataset.emotion,
       scrollPosition: this.element.scrollTop
@@ -174,6 +179,7 @@ export default class PopupView extends AbstractStatefulView {
 
   #commentInputHandler = (evt) => {
     evt.preventDefault();
+    this.#updateData();
     this._setState({
       comment: evt.target.value
     });

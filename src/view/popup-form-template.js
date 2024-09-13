@@ -31,14 +31,16 @@ const createCommentEmotion = (checkedEmotion) => {
   } return '';
 };
 
-export const createPopupFormTemplate = (checkedEmotion) =>
+export const createPopupFormTemplate = (checkedEmotion, comment) =>
   `
     <form class="film-details__new-comment"  action="" method="get">
       <div class="film-details__add-emoji-label">
         ${createCommentEmotion(checkedEmotion)}
       </div>
       <label class="film-details__comment-label">
-        <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
+        <textarea class="film-details__comment-input"
+        placeholder="Select reaction below and write comment here"
+        name="comment">${(comment) ? comment : ''}</textarea>
       </label>
 
       <div class="film-details__emoji-list">

@@ -45,7 +45,8 @@ export default class movieModel extends Observable {
   };
 
   addMovieComment = (updateType, update) => {
-    this.#allComments.push(update);
+    console.log(update.comments)
+    this.#allComments.push(update.comments[update.comments.length - 1]);
     this._notify(updateType, update);
   };
 
@@ -66,7 +67,6 @@ export default class movieModel extends Observable {
       ...this.#allComments.slice(index + 1),
     ];
 
-    console.log(this.#allComments)
     this._notify(updateType, update);
   };
 }

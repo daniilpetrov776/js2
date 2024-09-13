@@ -66,10 +66,12 @@ export default class MovieFeedPresenter {
         break;
       case UserAction.ADD_COMMENT:
         this.#movieModel.addMovieComment(updateType, update);
+        this.#popupPresenter.clearMovieData();
+        this.#movieModel.updateMovie(updateType, update);
         break;
       case UserAction.DELETE_COMMENT:
-        this.#movieModel.updateMovie(updateType, update);
         this.#movieModel.deleteMovieComment(updateType, update);
+        this.#movieModel.updateMovie(updateType, update);
         break;
     }
   };
@@ -188,6 +190,7 @@ export default class MovieFeedPresenter {
   #renderMoviePopup = () => {
     if (!this.#popupPresenter) {
       this.#popupPresenter = new PopupPresenter(this.#filmsContainer, this.#removeMoviePopup, this.#handleViewAction);
+      document.addEventListener('keydown', this.#onCtrlEnterDown);
       this.#popupPresenter.init(this.#currentMovie);
     }
   };
@@ -204,10 +207,18 @@ export default class MovieFeedPresenter {
 
   #removeMoviePopup = () => {
     if (this.#popupPresenter) {
+      document.removeEventListener('keydown', this.#onCtrlEnterDown);
       this.#popupPresenter.destroy();
       this.#popupPresenter = null;
       this.#currentMovie = null;
       document.body.classList.remove('hide-overflow');
+    }
+  };
+
+  #onCtrlEnterDown = (evt) => {
+    if (evt.key === 'Enter' && (evt.metaKey || evt.ctrlKey)) {
+      evt.preventDefault();
+      this.#popupPresenter.createComment();
     }
   };
 

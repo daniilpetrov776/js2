@@ -2,6 +2,7 @@ import { render, replace, remove } from '../framework/render.js';
 import { isEscapeKey } from '../utils/utils.js';
 import { UserAction, UpdateType } from '../utils/const.js';
 import PopupView from '../view/popup-view.js';
+import { nanoid } from 'nanoid';
 
 export default class PopupPresenter {
   #movie = null;
@@ -56,8 +57,49 @@ export default class PopupPresenter {
     }
   };
 
+  clearMovieData = () => {
+    this.#updateMovieData({
+      comment: null,
+      emotion: null,
+      scrollPosition: this.#movieData.scrollPosition
+    });
+  };
+
+  createComment = () => {
+    this.#popupComponent.setCommentData();
+
+    const {emotion, comment} = this.#movieData;
+
+    if (emotion && comment) {
+      const newCommentId = nanoid();
+
+      const newComment = {
+        id: newCommentId,
+        author: 'Bob',
+        date: new Date(),
+        emotion,
+        comment,
+      };
+
+      this.#changeData(
+        UserAction.ADD_COMMENT,
+        UpdateType.PATCH,
+        {
+          ...this.#movie,
+          comments: [
+            ...this.#movie.comments,
+            newComment
+          ]
+        },
+
+      );
+      console.log(newComment)
+    }
+  };
+
   #updateMovieData = (movieData) => {
     this.#movieData = {...movieData};
+    // console.log(movieData)
   };
 
   #setupPopupHandlers = () => {
@@ -80,17 +122,12 @@ export default class PopupPresenter {
   };
 
   #commentDeleteClickHandler = (commentId) => {
-    const commentIdToNumber = Number(commentId);
-
-    // console.log(typeof(commentId))
-    // console.log(commentIdToNumber)
-    // console.log(this.#movie.comments)
+    // const commentIdToNumber = Number(commentId);
     // console.log(commentId)
+    const movieCommentIdIndex = this.#movie.comments.findIndex((movieComment) => movieComment.id === commentId);
+    // console.log(movieCommentIdIndex)
 
-    const movieCommentIdIndex = this.#movie.comments.findIndex((movieComment) => movieComment.id === commentIdToNumber);
-    console.log(movieCommentIdIndex)
-
-    const deletedComment = this.#movie.comments.find((comment) => comment.id === commentIdToNumber);
+    const deletedComment = this.#movie.comments.find((comment) => comment.id === commentId);
     console.log(deletedComment)
     this.#changeData(
       UserAction.DELETE_COMMENT,
