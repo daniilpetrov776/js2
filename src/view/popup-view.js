@@ -196,7 +196,6 @@ export default class PopupView extends AbstractStatefulView {
   #commentDeleteClickHandler = (evt) => {
     evt.preventDefault();
     this.#updateData();
-    console.log(evt.target.dataset)
     this._callback.commentDeleteClick(evt.target.dataset.commentId);
   };
 

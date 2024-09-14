@@ -41,7 +41,6 @@ export default class MovieFeedPresenter {
 
   get movies() {
     this.#currentFilterType = this.#filterModel.get();
-    // const filterType = this.#filterModel.get();
 
     const movies = this.#movieModel.get();
 
@@ -77,7 +76,6 @@ export default class MovieFeedPresenter {
   };
 
   #handleModelEvent = (updateType, data) => {
-    console.log(data)
     switch (updateType) {
       case UpdateType.PATCH:
         if (this.#moviePresenters.get(data.id)) {

@@ -6,7 +6,6 @@ import { nanoid } from 'nanoid';
 
 export default class PopupPresenter {
   #movie = null;
-  // #comments = null;
   #popupComponent = null;
   #container = null;
   #removePopup = null;
@@ -19,9 +18,6 @@ export default class PopupPresenter {
     scrollPosition: 0
   };
 
-  // #updateMovieData = null;
-
-
   constructor (container, removePopup, changeData) {
     this.#container = container;
     this.#removePopup = removePopup;
@@ -30,8 +26,6 @@ export default class PopupPresenter {
 
   init = (movie, currentSortType) => {
     this.#movie = movie;
-    // this.#updateMovieData = this.#updateMovieData()
-    // this.#comments = movie.comments;
     this.#currentSortType = currentSortType;
 
     const prevPopupComponent = this.#popupComponent;
@@ -93,7 +87,6 @@ export default class PopupPresenter {
         },
 
       );
-      console.log(newComment)
     }
   };
 
@@ -122,13 +115,9 @@ export default class PopupPresenter {
   };
 
   #commentDeleteClickHandler = (commentId) => {
-    // const commentIdToNumber = Number(commentId);
-    // console.log(commentId)
     const movieCommentIdIndex = this.#movie.comments.findIndex((movieComment) => movieComment.id === commentId);
-    // console.log(movieCommentIdIndex)
 
     const deletedComment = this.#movie.comments.find((comment) => comment.id === commentId);
-    console.log(deletedComment)
     this.#changeData(
       UserAction.DELETE_COMMENT,
       UpdateType.PATCH,
