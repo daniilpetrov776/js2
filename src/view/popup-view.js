@@ -19,14 +19,15 @@ const createNewPopupTemplate = (popup) => {
     rating,
     title,
     year},
-  comments,
+  commentsId,
   comment,
   checkedEmotion,
   userDetails: {
     watchlist,
     alreadyWatched,
     favorite,
-  }
+  },
+  currentComments
   } = popup;
   return (`<section class="film-details">
   <div class="film-details__inner">
@@ -112,7 +113,7 @@ const createNewPopupTemplate = (popup) => {
               Comments <span class="film-details__comments-count">${popup.comments.length}</span>
             </h3>
 
-            ${createNewCommentsTemplate(comments)}
+            ${createNewCommentsTemplate(currentComments)}
 
             ${createPopupFormTemplate(checkedEmotion, comment)}
 
@@ -126,12 +127,16 @@ export default class PopupView extends AbstractStatefulView {
   #popup = null;
   #movieData = null;
   #updateMovieData = null;
+  #comments = [];
 
-  constructor(popup, movieData, updateMovieData) {
+  constructor(popup, movieData, updateMovieData, comments) {
     super();
     this.#movieData = movieData;
     this.#updateMovieData = updateMovieData;
-    this._state = PopupView.parsePopupToState(popup, movieData.emotion, movieData.comment, movieData.scrollPosition, updateMovieData);
+    this.#comments = comments;
+    console.log(this.#comments)
+    this._state = PopupView.parsePopupToState(popup, movieData.emotion, movieData.comment, movieData.scrollPosition, updateMovieData, comments);
+    console.log(this._state)
     this.#setInnerHandlers();
   }
 
@@ -204,10 +209,14 @@ export default class PopupView extends AbstractStatefulView {
     checkedEmotion = null,
     comment = null,
     scrollPosition = 0,
+    updateData,
+    currentComments,
   ) => ({...popup,
     checkedEmotion,
     comment,
-    scrollPosition
+    scrollPosition,
+    updateData,
+    currentComments,
   });
 
   static parseStateToPupup = (state) => {

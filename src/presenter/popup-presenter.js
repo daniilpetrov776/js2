@@ -3,7 +3,6 @@ import { isEscapeKey } from '../utils/utils.js';
 import { UserAction, UpdateType } from '../utils/const.js';
 import PopupView from '../view/popup-view.js';
 import { nanoid } from 'nanoid';
-
 export default class PopupPresenter {
   #movie = null;
   #popupComponent = null;
@@ -11,6 +10,7 @@ export default class PopupPresenter {
   #removePopup = null;
   #changeData = null;
   #currentSortType = null;
+  #comments = [];
 
   #movieData = {
     emotion: null,
@@ -18,10 +18,11 @@ export default class PopupPresenter {
     scrollPosition: 0
   };
 
-  constructor (container, removePopup, changeData) {
+  constructor (container, removePopup, changeData, comments) {
     this.#container = container;
     this.#removePopup = removePopup;
     this.#changeData = changeData;
+    this.#comments = comments;
   }
 
   init = (movie, currentSortType) => {
@@ -29,7 +30,7 @@ export default class PopupPresenter {
     this.#currentSortType = currentSortType;
 
     const prevPopupComponent = this.#popupComponent;
-    this.#popupComponent = new PopupView(this.#movie, this.#movieData, this.#updateMovieData);
+    this.#popupComponent = new PopupView(this.#movie, this.#movieData, this.#updateMovieData, this.#comments);
 
     document.addEventListener('keydown', this.#onEscKeydown);
     this.#setupPopupHandlers();

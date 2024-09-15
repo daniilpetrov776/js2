@@ -1,66 +1,68 @@
-import { generateMovie } from '../mock/mock.js';
-import { getAllComments } from '../mock/comments.js';
+// import { generateMovie } from '../mock/mock.js';
+// import { getAllComments } from '../mock/comments.js';
 import Observable from '../framework/observable.js';
+import { UpdateType } from '../utils/const.js';
 // import dateToY from '../utils/tasks.js';
 
-const FILM_COUNT = 18;
+// const FILM_COUNT = 18;
 
 export default class movieModel extends Observable {
-  #movies = Array.from({length: FILM_COUNT}, (_, index) => generateMovie(index));
+  // #movies = Array.from({length: FILM_COUNT}, (_, index) => generateMovie(index));
+  #movies = [];
   #allComments = [];
   #comments = [];
   #moviesApiService = null;
-  #test = [];
+
   constructor(moviesApiService) {
     super();
     this.#moviesApiService = moviesApiService;
-    this.#moviesApiService.movies.then((movies) => {
-      console.log(movies.map(this.#adaptToClient));
-    });
-    this.#pushAllComments();
   }
 
-  #pushAllComments = () => {
-    this.#allComments = getAllComments();
+
+  init = async () => {
+    try {
+      const movies = await this.#moviesApiService.movies;
+      this.#movies = movies.map(this.#adaptToClient);
+    } catch (err) {
+      this.#movies = [];
+    }
+    this._notify(UpdateType.INIT);
   };
 
-  getCurrentcomments = (movie) => {
-    this.#comments = movie.comments.map((commentId) =>
-      this.#allComments.find((comment) =>
-        comment.id === commentId)
-    );
+  getCurrentcomments = async (movie) => {
+    this.#comments = await this.#moviesApiService.getComments(movie);
     return this.#comments;
   };
 
   get = () => this.#movies;
 
-  updateMovie = (updateType, update) => {
+  updateMovie = async (updateType, update) => {
 
     const index = this.#movies.findIndex((movie) => movie.id === update.id);
 
     if (index === -1) {
       throw new Error('Can\'t update unexisting movie');
     }
-
-    this.#movies = [
-      ...this.#movies.slice(0, index),
-      update,
-      ...this.#movies.slice(index + 1),
-    ];
-
-    this._notify(updateType, update);
+    try {
+      const response = await this.#moviesApiService.updateMovie(update);
+      const updatedMovie = this.#adaptToClient(response);
+      this.#movies = [
+        ...this.#movies.slice(0, index),
+        update,
+        ...this.#movies.slice(index + 1),
+      ];
+      this._notify(updateType, updatedMovie);
+    } catch(err) {
+      throw new Error('Can\'t update movie');
+    }
   };
 
   addMovieComment = (updateType, update) => {
-    console.log(update.comments)
     this.#allComments.push(update.comments[update.comments.length - 1]);
     this._notify(updateType, update);
   };
 
   deleteMovieComment = (updateType, update) => {
-    console.log(update)
-    console.log(update.deletedComment)
-    console.log(this.#allComments)
     const index = this.#allComments.findIndex(
       (comment) => comment.id === update.deletedComment.id
     );

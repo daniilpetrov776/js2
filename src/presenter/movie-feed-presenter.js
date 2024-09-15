@@ -6,6 +6,7 @@ import SortView from '../view/sort-view.js';
 import FilmsContainerView from '../view/films-container-view.js';
 import ShowMoreButtonView from '../view/show-more-button-view.js';
 import EmptyFeedView from '../view/empty-feed-view.js';
+import LoadingView from '../view/loading-view.js';
 import MoviePresenter from './movie-presenter.js';
 import PopupPresenter from './popup-presenter.js';
 import { FilterType, SortType, UpdateType, UserAction } from '../utils/const.js';
@@ -16,6 +17,7 @@ export default class MovieFeedPresenter {
   #films = new FilmsView();
   #filmsList = new FilmsListView();
   #filmsContainer = new FilmsContainerView();
+  #loadingComponent = new LoadingView();
   #loadMoreMoviesComponent = null;
   #sortComponent = null;
   #popupPresenter = null;
@@ -29,6 +31,7 @@ export default class MovieFeedPresenter {
 
   #renderMoviesCount = MOVIES_PER_STEP;
   #moviePresenters = new Map();
+  #isLoading = true;
 
   constructor (siteElement, movieModel, filterModel) {
     this.#siteElement = siteElement;
@@ -98,7 +101,16 @@ export default class MovieFeedPresenter {
         this.#clearMovies({resetRenderedFilmCount: true, resetSortType: true});
         this.#renderFeed();
         break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
+        this.#renderFeed();
+        break;
     }
+  };
+
+  #renderLoading = () => {
+    render(this.#loadingComponent, this.#filmsList.element);
   };
 
   #handleSortTypeChange = (sortType) => {
@@ -131,7 +143,14 @@ export default class MovieFeedPresenter {
 
     this.#renderSort(this.#siteElement);
 
-    this.#renderBaseStructure();
+    render(this.#films, this.#siteElement);
+    render(this.#filmsList, this.#films.element);
+    render(this.#filmsContainer, this.#filmsList.element);
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
+
     this.#checkAndRenderEmptyFeed();
 
     this.#renderMovies(movies.slice(0, Math.min(moviesCount, this.#renderMoviesCount)));
@@ -141,11 +160,9 @@ export default class MovieFeedPresenter {
     }
   };
 
-  #renderBaseStructure = () => {
-    render(this.#films, this.#siteElement);
-    render(this.#filmsList, this.#films.element);
-    render(this.#filmsContainer, this.#filmsList.element);
-  };
+  // #renderBaseStructure = () => {
+
+  // };
 
   #renderMovies = (movies) => {
     movies.forEach((movie) => this.#renderMovie(movie));
@@ -185,20 +202,26 @@ export default class MovieFeedPresenter {
     render(this.#emptyFeedComponent, this.#films.element);
   };
 
-  #renderMoviePopup = () => {
+  #renderMoviePopup = (comments, isCommentsLoadingError) => {
     if (!this.#popupPresenter) {
-      this.#popupPresenter = new PopupPresenter(this.#filmsContainer, this.#removeMoviePopup, this.#handleViewAction);
-      document.addEventListener('keydown', this.#onCtrlEnterDown);
+      this.#popupPresenter = new PopupPresenter(this.#filmsContainer, this.#removeMoviePopup, this.#handleViewAction, comments);
       this.#popupPresenter.init(this.#currentMovie);
+      if (!isCommentsLoadingError) {
+        document.addEventListener('keydown', this.#onCtrlEnterDown);
+      }
     }
   };
 
-  #addPopup = (movie) => {
+  #addPopup = async (movie) => {
     //Если есть текущий фильм и если id текущего фильма строго не равен id фильма, то выполни код ниже.
     if (this.#currentMovie?.id !== movie.id) {
       this.#removeMoviePopup();
       this.#currentMovie = movie;
-      this.#renderMoviePopup();
+      // this.#movieModel.getCurrentcomments(movie);
+      const comments = await this.#movieModel.getCurrentcomments(movie);
+      const isCommentsLoadingError = !comments;
+
+      this.#renderMoviePopup(comments, isCommentsLoadingError);
       document.body.classList.add('hide-overflow');
     }
   };
@@ -225,6 +248,7 @@ export default class MovieFeedPresenter {
     this.#moviePresenters.clear();
 
     remove(this.#sortComponent);
+    remove(this.#loadingComponent);
     remove(this.#loadMoreMoviesComponent);
 
     if (this.#emptyFeedComponent) {

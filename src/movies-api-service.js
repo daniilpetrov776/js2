@@ -12,11 +12,17 @@ export default class MoviesApiService extends ApiService {
       .then(ApiService.parseResponse);
   }
 
+  getComments(movie) {
+    return this._load({url: `comments/${movie.id}`})
+      .then(ApiService.parseResponse)
+      .catch(() => null);
+  }
+
   updateMovie = async (movie) => {
     const response = await this._load({
       url: `/movies/${movie.id}`,
       method: Method.PUT,
-      body: JSON.stringify(movie),
+      body: JSON.stringify(this.#adaptToServer(movie)),
       headers: new Headers({'Content-Type': 'application/json'}),
     });
 
@@ -26,10 +32,10 @@ export default class MoviesApiService extends ApiService {
   };
 
   #adaptToServer = (movie) => {
-
     const release = {
+      ...movie.filmInfo,
       'date': movie.filmInfo.year,
-      'release_country': this.movies.filmInfo.country,
+      'release_country': movie.filmInfo.country,
     };
 
     const film_info = {
