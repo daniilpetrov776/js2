@@ -1,4 +1,4 @@
-import { dateToY } from '../utils/tasks.js';
+import { dateToY, minutesToTime } from '../utils/tasks.js';
 import AbstractView from '../framework/view/abstract-view.js';
 
 const createNewFilmTemplate = (movie) => {
@@ -23,7 +23,7 @@ const createNewFilmTemplate = (movie) => {
             <p class="film-card__rating">${rating}</p>
             <p class="film-card__info">
               <span class="film-card__year">${dateToY(year)}</span>
-              <span class="film-card__duration">${duration}</span>
+              <span class="film-card__duration">${minutesToTime(duration)}</span>
               <span class="film-card__genre">${genre}</span>
             </p>
             <img src="${poster}" alt="" class="film-card__poster">

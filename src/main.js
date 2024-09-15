@@ -7,22 +7,24 @@ import './mock/mock.js';
 import MovieModel from './model/movie-model.js';
 import FilterModel from './model/filter-model.js';
 import { calculateWatchedMovies, getUserRank } from './utils/user.js';
+import MoviesApiService from './movies-api-service.js';
+
+const AUTHORIZATION = 'Basic dawf3121sfddasd';
+const END_POINT = 'https://17.ecmascript.htmlacademy.pro/cinemaddict';
 
 export const siteMainElement = document.querySelector('.main');
 export const siteHeaderElement = document.querySelector('.header');
 export const siteFooterElement = document.querySelector('.footer');
 
-const movieModel = new MovieModel();
+const movieModel = new MovieModel(new MoviesApiService(END_POINT, AUTHORIZATION));
 const filterModel = new FilterModel();
 const movieFeedPresenter = new MovieFeedPresenter(siteMainElement, movieModel, filterModel);
 const filterPresenter = new FilterPresenter(siteMainElement, filterModel, movieModel);
 const watchedMovies = calculateWatchedMovies(movieModel.get());
 const userRank = getUserRank(watchedMovies);
-// const filters = generateFilter(movieModel.get());
-// console.log(filters);
-// console.log(filters.at(1).count);
+
 render(new ProfileView(userRank), siteHeaderElement);
-// render(new FilterView(filters, 'all'), siteMainElement);
 render(new MoviesCountView(movieModel.get()), siteFooterElement);
+
 filterPresenter.init();
 movieFeedPresenter.init();
