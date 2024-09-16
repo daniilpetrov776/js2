@@ -57,26 +57,112 @@ export default class movieModel extends Observable {
     }
   };
 
-  addMovieComment = (updateType, update) => {
-    this.#allComments.push(update.comments[update.comments.length - 1]);
-    this._notify(updateType, update);
+  addMovieComment = async (updateType, update, createdComment) => {
+    try {
+      console.log(update, createdComment)
+      const response = await this.#moviesApiService.addComment(update, createdComment);
+      this.#comments = response.comments;
+
+      this.#updateOnClient({
+        updateType,
+        update: response.movie,
+        isAdapted: false,
+      });
+    }  catch (err) {
+      throw new Error('Can\'t add comment');
+    }
   };
 
-  deleteMovieComment = (updateType, update) => {
-    const index = this.#allComments.findIndex(
-      (comment) => comment.id === update.deletedComment.id
+  #updateOnClient = async ({updateType, update, isAdapted}) => {
+    const index = this.#movies.findIndex((movie) => movie.id === update.id);
+
+    if (index === -1) {
+      throw new Error('Can\'t update unexisting movie');
+    }
+
+    const updatedMovie = (!isAdapted) ? this.#adaptToClient(update) : update;
+
+    this.#movies = [
+      ...this.#movies.slice(0, index),
+      updatedMovie,
+      ...this.#movies.slice(index + 1),
+    ];
+    this._notify(updateType, updatedMovie);
+  };
+
+  updateOnServer = async (updateType, update) => {
+    const index = this.#movies.findIndex((movie) => movie.id === update.id);
+    if (index === -1) {
+      throw new Error('Can\'t update unexisting movie');
+    }
+
+    try {
+      const response = await this.#moviesApiService.updateMovie(update);
+
+      const updatedMovie = this.#adaptToClient(response);
+
+      this.#movies = [
+        ...this.#movies.slice(0, index),
+        updatedMovie,
+        ...this.#movies.slice(index + 1),
+      ];
+      this._notify(updateType, updatedMovie);
+    } catch {
+      throw new Error('Can\'t update movie');
+    }
+  };
+
+  // deleteMovieComment = async (updateType, update, deletedComment) => {
+  //   console.log(update)
+  //   const index = this.#allComments.findIndex(
+  //     (comment) => comment.id === update.deletedComment.id
+  //   );
+
+  //   if (index === -1) {
+  //     throw new Error('Can\'t delete unexisting comment');
+  //   }
+
+  //   try {
+  //     await this.#moviesApiService.deleteComment(update);
+  //     this.#allComments = [
+  //       ...this.#allComments.slice(0, index),
+  //       ...this.#allComments.slice(index + 1),
+  //     ];
+  //     this._notify(updateType, update);
+  //   } catch (err) {
+  //     throw new Error('Can\'t delete comment');
+  //   }
+  // };
+
+  deleteMovieComment = async (updateType, update, deletedComment) => {
+    console.log(update)
+    const index = this.#comments.findIndex(
+      (comment) => comment.id === deletedComment.id
     );
 
     if (index === -1) {
       throw new Error('Can\'t delete unexisting comment');
     }
 
-    this.#allComments = [
-      ...this.#allComments.slice(0, index),
-      ...this.#allComments.slice(index + 1),
-    ];
+    try {
+      await this.#moviesApiService.deleteComment(deletedComment);
 
-    this._notify(updateType, update);
+      const updateMovie = {
+        ...update,
+        comments: [
+          ...update.comments.slice(0, index),
+          ...update.comments.slice(index + 1)
+        ]
+      };
+
+      this.#updateOnClient({
+        updateType,
+        update: updateMovie,
+        isAdapted: true
+      });
+    } catch (err) {
+      throw new Error('Can\'t delete comment');
+    }
   };
 
   #adaptToClient = (movie) => {

@@ -19,7 +19,7 @@ const createNewPopupTemplate = (popup) => {
     rating,
     title,
     year},
-  commentsId,
+  comments,
   comment,
   checkedEmotion,
   userDetails: {
@@ -124,24 +124,20 @@ const createNewPopupTemplate = (popup) => {
 `);
 };
 export default class PopupView extends AbstractStatefulView {
-  #popup = null;
-  #movieData = null;
+
   #updateMovieData = null;
-  #comments = [];
+
 
   constructor(popup, movieData, updateMovieData, comments) {
     super();
-    this.#movieData = movieData;
+
     this.#updateMovieData = updateMovieData;
-    this.#comments = comments;
-    console.log(this.#comments)
     this._state = PopupView.parsePopupToState(popup, movieData.emotion, movieData.comment, movieData.scrollPosition, updateMovieData, comments);
-    console.log(this._state)
     this.#setInnerHandlers();
   }
 
   get template() {
-    // console.log(this._state);
+    console.log(this._state)
     return createNewPopupTemplate(this._state);
   }
 
@@ -196,6 +192,7 @@ export default class PopupView extends AbstractStatefulView {
       comment: this._state.comment,
       scrollPosition: this.element.scrollTop
     });
+    console.log(this._state)
   };
 
   #commentDeleteClickHandler = (evt) => {

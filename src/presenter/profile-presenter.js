@@ -6,18 +6,18 @@ export default class ProfilePresenter {
   #container = null;
   #porfileComponent = null;
 
-  #moveModel = null;
+  #movieModel = null;
   #userRank = null;
 
   constructor(container, movieModel) {
     this.#container = container;
-    this.#moveModel = movieModel;
+    this.#movieModel = movieModel;
 
-    this.#moveModel.addObserver(this.#modeEventHandler);
+    this.#movieModel.addObserver(this.#modeEventHandler);
   }
 
   init ()  {
-    this.#userRank = getUserRank(this.#moveModel.get());
+    this.#userRank = getUserRank(this.#movieModel.get());
 
     const prevProfileComponent = this.#porfileComponent;
 

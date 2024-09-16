@@ -61,15 +61,40 @@ export default class MovieFeedPresenter {
     this.#renderFeed();
   };
 
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, update, updateComment) => {
     switch (actionType) {
       case UserAction.UPDATE_MOVIE:
-        this.#movieModel.updateMovie(updateType, update);
+        // if (
+        //   this.#moviePresenters.get(update.id) &&
+        //   !this.#popupPresenter
+        // ) {
+        //   this.#moviePresenters.get(update.id).setMovieEditing();
+        // }
+
+        // if (this.#popupPresenter) {
+        //   this.#popupPresenter.setMovieEditing();
+        // }
+        try {
+          await this.#movieModel.updateOnServer(updateType, update)
+        } catch {
+          if (
+            this.#moviePresenters.get(update.id) &&
+            !this.#popupPresenter
+          ) {
+            console.log('Ошибка')
+          }
+        }
+        // this.#movieModel.updateMovie(updateType, update);
         break;
       case UserAction.ADD_COMMENT:
-        this.#movieModel.addMovieComment(updateType, update);
-        this.#popupPresenter.clearMovieData();
-        this.#movieModel.updateMovie(updateType, update);
+        this.#popupPresenter.setCommentCreation();
+        try {
+          await this.#movieModel.addMovieComment(updateType, update, updateComment);
+          this.#popupPresenter.clearMovieData();
+          // this.#movieModel.updateMovie(updateType, update);
+        } catch (err) {
+          console.log(err)
+        }
         break;
       case UserAction.DELETE_COMMENT:
         this.#movieModel.deleteMovieComment(updateType, update);
@@ -86,7 +111,8 @@ export default class MovieFeedPresenter {
         }
         if (this.#popupPresenter && this.#currentMovie.id === data.id) {
           this.#currentMovie = data;
-          this.#popupPresenter.init(data);
+          console.log('adasdas', data);
+          this.#renderMoviePopup();
         }
         if (this.#filterModel.get() !== FilterType.ALL) {
           this.#handleModelEvent(UpdateType.MINOR);
@@ -202,27 +228,35 @@ export default class MovieFeedPresenter {
     render(this.#emptyFeedComponent, this.#films.element);
   };
 
-  #renderMoviePopup = (comments, isCommentsLoadingError) => {
+  #renderMoviePopup = async () => {
+    const comments = await this.#movieModel.getCurrentcomments(this.#currentMovie);
+    console.log('комментарии', comments);
+    const isCommentsLoadingError = !comments;
     if (!this.#popupPresenter) {
-      this.#popupPresenter = new PopupPresenter(this.#filmsContainer, this.#removeMoviePopup, this.#handleViewAction, comments);
-      this.#popupPresenter.init(this.#currentMovie);
+      this.#popupPresenter = new PopupPresenter(
+        this.#filmsContainer,
+        this.#removeMoviePopup,
+        this.#handleViewAction,
+      );
+
       if (!isCommentsLoadingError) {
         document.addEventListener('keydown', this.#onCtrlEnterDown);
       }
+      this.#popupPresenter.init(this.#currentMovie, comments, isCommentsLoadingError);
     }
   };
 
-  #addPopup = async (movie) => {
+  #addPopup = (movie) => {
     //Если есть текущий фильм и если id текущего фильма строго не равен id фильма, то выполни код ниже.
     if (this.#currentMovie?.id !== movie.id) {
-      this.#removeMoviePopup();
       this.#currentMovie = movie;
+      this.#removeMoviePopup();
       // this.#movieModel.getCurrentcomments(movie);
-      const comments = await this.#movieModel.getCurrentcomments(movie);
-      const isCommentsLoadingError = !comments;
+      // const comments = await this.#movieModel.getCurrentcomments(movie);
+      // const isCommentsLoadingError = !comments;
 
-      this.#renderMoviePopup(comments, isCommentsLoadingError);
       document.body.classList.add('hide-overflow');
+      this.#renderMoviePopup();
     }
   };
 

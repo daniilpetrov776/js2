@@ -10,7 +10,8 @@ export default class PopupPresenter {
   #removePopup = null;
   #changeData = null;
   #currentSortType = null;
-  #comments = [];
+  // #comments = [];
+  #comments = null;
 
   #movieData = {
     emotion: null,
@@ -18,16 +19,19 @@ export default class PopupPresenter {
     scrollPosition: 0
   };
 
-  constructor (container, removePopup, changeData, comments) {
+  constructor (container, removePopup, changeData) {
     this.#container = container;
     this.#removePopup = removePopup;
     this.#changeData = changeData;
-    this.#comments = comments;
+    // this.#comments = comments;
   }
 
-  init = (movie, currentSortType) => {
+  init = (movie, comments, isCommentsLoadingError) => {
     this.#movie = movie;
-    this.#currentSortType = currentSortType;
+    this.#comments = (!isCommentsLoadingError) ? comments : [];
+    console.log(this.#movie)
+    console.log(this.#comments)
+    // this.#currentSortType = currentSortType;
 
     const prevPopupComponent = this.#popupComponent;
     this.#popupComponent = new PopupView(this.#movie, this.#movieData, this.#updateMovieData, this.#comments);
@@ -37,13 +41,14 @@ export default class PopupPresenter {
 
     if (prevPopupComponent === null) {
       render(this.#popupComponent, this.#container.element);
-    } else {
-      replace(this.#popupComponent, prevPopupComponent);
-
-      this.#popupComponent.setScrollPosition();
-
-      remove(prevPopupComponent);
+      return;
     }
+
+    replace(this.#popupComponent, prevPopupComponent);
+
+    this.#popupComponent.setScrollPosition();
+
+    remove(prevPopupComponent);
   };
 
   destroy = () => {
@@ -58,43 +63,92 @@ export default class PopupPresenter {
       emotion: null,
       scrollPosition: this.#movieData.scrollPosition
     });
+
+    this.#popupComponent.updateElement({
+      checkedEmotion: this.#movieData.emotion,
+      comment: this.#movieData.comment,
+      scrollPosition: this.#movieData.scrollPosition
+    });
   };
+
+  // createComment = () => {
+  //   this.#popupComponent.setCommentData();
+
+  //   const {emotion, comment} = this.#movieData;
+
+  //   if (emotion && comment) {
+  //     const newCommentId = nanoid();
+
+  //     const newComment = {
+  //       id: '',
+  //       author: 'Bob',
+  //       date: new Date(),
+  //       emotion,
+  //       comment,
+  //     };
+
+  //     this.#changeData(
+  //       UserAction.ADD_COMMENT,
+  //       UpdateType.PATCH,
+  //       {
+  //         ...this.#movie,
+  //         comments: [
+  //           ...this.#movie.comments,
+  //           newComment
+  //         ]
+  //       },
+
+  //     );
+  //   }
+  // };
 
   createComment = () => {
     this.#popupComponent.setCommentData();
-
     const {emotion, comment} = this.#movieData;
 
     if (emotion && comment) {
-      const newCommentId = nanoid();
-
-      const newComment = {
-        id: newCommentId,
-        author: 'Bob',
-        date: new Date(),
-        emotion,
-        comment,
-      };
-
       this.#changeData(
         UserAction.ADD_COMMENT,
         UpdateType.PATCH,
-        {
-          ...this.#movie,
-          comments: [
-            ...this.#movie.comments,
-            newComment
-          ]
-        },
-
+        this.#movie,
+        {emotion, comment}
       );
     }
   };
 
   #updateMovieData = (movieData) => {
     this.#movieData = {...movieData};
-    // console.log(movieData)
   };
+
+  setCommentCreation = () => {
+    this.#popupComponent.updateElement({
+      ...this.#movieData,
+      isDisabled: true,
+      isCommentCreating: true,
+    });
+  };
+
+  setMovieEditing = () => {
+    this.#popupComponent.updateElement({
+      ...this.#movieData,
+      isDisabled: true,
+      isMovieEditing: true,
+    });
+  };
+
+  // setAborting = ({actionType, commentId}) => {
+  //   this.#popupComponent.updateElement({
+  //     ...this.#movieData,
+  //     isDisabled: false,
+  //     deletedCommentId: null,
+  //     isMovieEditing: false,
+  //   });
+
+  //   switch (actionType) {
+  //     case UserAction.UPDATE_MOVIE:
+
+  //   }
+  // };
 
   #setupPopupHandlers = () => {
     this.#popupComponent.setPopupClickHandler(this.#onCloseButtonClick);
@@ -115,21 +169,32 @@ export default class PopupPresenter {
     }
   };
 
+  // #commentDeleteClickHandler = (commentId) => {
+  //   const movieCommentIdIndex = this.#movie.comments.findIndex((movieComment) => movieComment.id === commentId);
+
+  //   const deletedComment = this.#movie.comments.find((comment) => comment.id === commentId);
+  //   this.#changeData(
+  //     UserAction.DELETE_COMMENT,
+  //     UpdateType.PATCH,
+  //     {
+  //       ...this.#movie,
+  //       comments: [
+  //         ...this.#movie.comments.slice(0, movieCommentIdIndex),
+  //         ...this.#movie.comments.slice(movieCommentIdIndex + 1)
+  //       ],
+  //       deletedComment,
+  //     },
+  //   );
+  // };
+
   #commentDeleteClickHandler = (commentId) => {
-    const movieCommentIdIndex = this.#movie.comments.findIndex((movieComment) => movieComment.id === commentId);
 
     const deletedComment = this.#movie.comments.find((comment) => comment.id === commentId);
     this.#changeData(
       UserAction.DELETE_COMMENT,
       UpdateType.PATCH,
-      {
-        ...this.#movie,
-        comments: [
-          ...this.#movie.comments.slice(0, movieCommentIdIndex),
-          ...this.#movie.comments.slice(movieCommentIdIndex + 1)
-        ],
-        deletedComment,
-      },
+      this.#movie,
+      deletedComment
     );
   };
 

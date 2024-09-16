@@ -4,6 +4,8 @@ import ApiService from './framework/api-service.js';
 const Method = {
   GET: 'GET',
   PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE',
 };
 
 export default class MoviesApiService extends ApiService {
@@ -19,6 +21,7 @@ export default class MoviesApiService extends ApiService {
   }
 
   updateMovie = async (movie) => {
+    console.log(movie)
     const response = await this._load({
       url: `/movies/${movie.id}`,
       method: Method.PUT,
@@ -29,6 +32,28 @@ export default class MoviesApiService extends ApiService {
     const parsedResponse = await ApiService.parseResponse(response);
 
     return parsedResponse;
+  };
+
+  addComment = async (movie, comment) => {
+    console.log(comment)
+    const response = await this._load({
+      url: `comments/${movie.id}`,
+      method: Method.POST,
+      body: JSON.stringify(comment),
+      headers: new Headers({'Content-Type': 'application/json'})
+    });
+
+    const parsedResponse = await ApiService.parseResponse(response);
+
+    return parsedResponse;
+  };
+
+  deleteComment = async (movie) => {
+    await this._load({
+      url: `comments/${movie.id}`,
+      method: Method.DELETE,
+      headers: new Headers({'Content-Type': 'application/json'})
+    });
   };
 
   #adaptToServer = (movie) => {
