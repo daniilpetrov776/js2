@@ -19,7 +19,7 @@ const createNewPopupTemplate = (popup) => {
     rating,
     title,
     year},
-  comments,
+  // comments,
   comment,
   checkedEmotion,
   userDetails: {
@@ -27,7 +27,10 @@ const createNewPopupTemplate = (popup) => {
     alreadyWatched,
     favorite,
   },
-  currentComments
+  currentComments,
+  isCommentLoadingError,
+  isDisabled,
+  deleteCommentId
   } = popup;
   return (`<section class="film-details">
   <div class="film-details__inner">
@@ -110,12 +113,13 @@ const createNewPopupTemplate = (popup) => {
     <div class="film-details__bottom-container">
           <section class="film-details__comments-wrap">
             <h3 class="film-details__comments-title">
-              Comments <span class="film-details__comments-count">${popup.comments.length}</span>
+              ${((!isCommentLoadingError) ? `Comments <span class="film-details__comments-count">${popup.comments.length}</span>` : 'Error loading comments')}
             </h3>
 
-            ${createNewCommentsTemplate(currentComments)}
+            ${(!isCommentLoadingError) ?  createNewCommentsTemplate(currentComments, deleteCommentId) : ''}
 
-            ${createPopupFormTemplate(checkedEmotion, comment)}
+
+            ${createPopupFormTemplate(checkedEmotion, comment, isCommentLoadingError, isDisabled)}
 
           </section>
         </div>
@@ -128,12 +132,14 @@ export default class PopupView extends AbstractStatefulView {
   #updateMovieData = null;
 
 
-  constructor(popup, movieData, updateMovieData, comments) {
+  constructor(popup, movieData, updateMovieData, comments, isCommentLoadingError) {
     super();
-
-    this.#updateMovieData = updateMovieData;
     this._state = PopupView.parsePopupToState(popup, movieData.emotion, movieData.comment, movieData.scrollPosition, updateMovieData, comments);
-    this.#setInnerHandlers();
+    this.#updateMovieData = updateMovieData;
+
+    if (!isCommentLoadingError) {
+      this.#setInnerHandlers();
+    }
   }
 
   get template() {
@@ -142,8 +148,12 @@ export default class PopupView extends AbstractStatefulView {
   }
 
   _restoreHandlers = () => {
-    this.#setInnerHandlers();
     this.setScrollPosition();
+    this.setPopupClickHandler(this._callback.click);
+    this.setWatchListClickHandler(this._callback.watchlistClick);
+    this.setWatchedClickHandler(this._callback.watchClick);
+    this.setFavoriteClickHandler(this._callback.favorite);
+    this.#setInnerHandlers();
     this.setCommentDeleteClickHandler(this._callback.commentDeleteClick);
   };
 
@@ -192,7 +202,6 @@ export default class PopupView extends AbstractStatefulView {
       comment: this._state.comment,
       scrollPosition: this.element.scrollTop
     });
-    console.log(this._state)
   };
 
   #commentDeleteClickHandler = (evt) => {
@@ -208,12 +217,17 @@ export default class PopupView extends AbstractStatefulView {
     scrollPosition = 0,
     updateData,
     currentComments,
+    isCommentLoadingError = false,
   ) => ({...popup,
     checkedEmotion,
     comment,
     scrollPosition,
     updateData,
     currentComments,
+    isCommentLoadingError,
+    isDisabled: false,
+    deleteCommentId: null,
+    ifMovieEditing: false,
   });
 
   static parseStateToPupup = (state) => {
@@ -232,6 +246,7 @@ export default class PopupView extends AbstractStatefulView {
   };
 
   setWatchListClickHandler = (callback) => {
+    console.log('view - клик отработал', callback)
     this._callback.watchlistClick = callback;
     this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#watchlistClickHandler);
   };

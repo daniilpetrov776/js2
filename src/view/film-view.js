@@ -1,5 +1,5 @@
 import { dateToY, minutesToTime } from '../utils/tasks.js';
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
 const createNewFilmTemplate = (movie) => {
   const {filmInfo: {
@@ -48,21 +48,35 @@ const createNewFilmTemplate = (movie) => {
 `);
 };
 
-export default class FilmView extends AbstractView {
-  #task = null;
+export default class FilmView extends AbstractStatefulView {
+  #movie = null;
 
-  constructor(task) {
+  constructor(movie) {
     super();
-    this.task = task;
+    this.#movie = movie;
+    this._state = FilmView.parseMovieToState(this.#movie);
   }
 
   get template() {
-    return createNewFilmTemplate(this.task);
+    // console.log(this._state)
+    return createNewFilmTemplate(this.#movie);
   }
+
+  static parseMovieToState = (movie) => ({
+    ...movie,
+    isMovieEditing: false,
+  });
+
+  _restoreHandlers = () => {
+    this.setMovieClickHandler(this._callback.click);
+    this.setWatchListClickHandler(this._callback.watchlistClick);
+    this.setWatchedClickHandler(this._callback.watchClick);
+    this.setFavoriteClickHandler(this._callback.favorite);
+  };
 
   setMovieClickHandler = (callback) => {
     this._callback.click = callback;
-    this.element.querySelector('.film-card__poster').addEventListener('click', this.#movieClickHandler);
+    this.element.querySelector('a').addEventListener('click', this.#movieClickHandler);
   };
 
   setWatchListClickHandler = (callback) => {

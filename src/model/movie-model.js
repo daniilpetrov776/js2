@@ -30,6 +30,7 @@ export default class movieModel extends Observable {
   };
 
   getCurrentcomments = async (movie) => {
+    console.log(movie)
     this.#comments = await this.#moviesApiService.getComments(movie);
     return this.#comments;
   };
@@ -59,7 +60,6 @@ export default class movieModel extends Observable {
 
   addMovieComment = async (updateType, update, createdComment) => {
     try {
-      console.log(update, createdComment)
       const response = await this.#moviesApiService.addComment(update, createdComment);
       this.#comments = response.comments;
 
@@ -91,6 +91,7 @@ export default class movieModel extends Observable {
   };
 
   updateOnServer = async (updateType, update) => {
+    console.log('обновление на сервере', updateType, update)
     const index = this.#movies.findIndex((movie) => movie.id === update.id);
     if (index === -1) {
       throw new Error('Can\'t update unexisting movie');
@@ -98,14 +99,17 @@ export default class movieModel extends Observable {
 
     try {
       const response = await this.#moviesApiService.updateMovie(update);
-
       const updatedMovie = this.#adaptToClient(response);
+      console.log(updatedMovie)
+      console.log(this.#movies)
+
 
       this.#movies = [
         ...this.#movies.slice(0, index),
         updatedMovie,
         ...this.#movies.slice(index + 1),
       ];
+      console.log(this.#movies)
       this._notify(updateType, updatedMovie);
     } catch {
       throw new Error('Can\'t update movie');
@@ -135,7 +139,6 @@ export default class movieModel extends Observable {
   // };
 
   deleteMovieComment = async (updateType, update, deletedComment) => {
-    console.log(update)
     const index = this.#comments.findIndex(
       (comment) => comment.id === deletedComment.id
     );

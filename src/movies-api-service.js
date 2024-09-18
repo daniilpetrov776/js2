@@ -21,7 +21,6 @@ export default class MoviesApiService extends ApiService {
   }
 
   updateMovie = async (movie) => {
-    console.log(movie)
     const response = await this._load({
       url: `/movies/${movie.id}`,
       method: Method.PUT,
@@ -35,7 +34,6 @@ export default class MoviesApiService extends ApiService {
   };
 
   addComment = async (movie, comment) => {
-    console.log(comment)
     const response = await this._load({
       url: `comments/${movie.id}`,
       method: Method.POST,

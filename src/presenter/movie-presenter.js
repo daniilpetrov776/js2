@@ -18,7 +18,7 @@ export default class MoviePresenter {
     this.#movie = movie;
 
     const prevMovieComponent = this.#movieComponent;
-    this.#movieComponent = new FilmView(movie);
+    this.#movieComponent = new FilmView(this.#movie);
 
     this.#setupMovieHandlers();
 
@@ -34,9 +34,9 @@ export default class MoviePresenter {
     remove(this.#movieComponent);
   };
 
-  // setMovieEditing = () => {
-  //   this.#movieComponent.updateElement({isMovieEditing: true});
-  // };
+  setMovieEditing = () => {
+    this.#movieComponent.updateElement({isMovieEditing: true});
+  };
 
   #setupMovieHandlers = () => {
     this.#movieComponent.setMovieClickHandler(() => this.#moviePopup(this.#movie));
