@@ -32,6 +32,9 @@ const createNewPopupTemplate = (popup) => {
   isDisabled,
   deleteCommentId
   } = popup;
+
+  // console.log(isCommentLoadingError)
+  console.log('айди удаления',deleteCommentId)
   return (`<section class="film-details">
   <div class="film-details__inner">
     <div class="film-details__top-container">
@@ -129,13 +132,23 @@ const createNewPopupTemplate = (popup) => {
 };
 export default class PopupView extends AbstractStatefulView {
 
-  #updateMovieData = null;
-
 
   constructor(popup, movieData, updateMovieData, comments, isCommentLoadingError) {
+    // console.log(popup)
+    // console.log(movieData)
+    // console.log(updateMovieData)
+    // console.log(comments)
+    // console.log(isCommentLoadingError)
     super();
-    this._state = PopupView.parsePopupToState(popup, movieData.emotion, movieData.comment, movieData.scrollPosition, updateMovieData, comments);
-    this.#updateMovieData = updateMovieData;
+    this._state = PopupView.parsePopupToState(
+      popup,
+      comments,
+      movieData.emotion,
+      movieData.comment,
+      movieData.scrollPosition,
+      updateMovieData,
+      isCommentLoadingError);
+    this.updateMovieData = updateMovieData;
 
     if (!isCommentLoadingError) {
       this.#setInnerHandlers();
@@ -153,8 +166,11 @@ export default class PopupView extends AbstractStatefulView {
     this.setWatchListClickHandler(this._callback.watchlistClick);
     this.setWatchedClickHandler(this._callback.watchClick);
     this.setFavoriteClickHandler(this._callback.favorite);
-    this.#setInnerHandlers();
-    this.setCommentDeleteClickHandler(this._callback.commentDeleteClick);
+
+    if (!this._state.isCommentLoadingError && !this._state.isDisabled) {
+      this.setCommentDeleteClickHandler(this._callback.commentDeleteClick);
+      this.#setInnerHandlers();
+    }
   };
 
   #setInnerHandlers = () => {
@@ -174,9 +190,27 @@ export default class PopupView extends AbstractStatefulView {
     if (commentsDelete) {
       this._callback.commentDeleteClick = callback;
       commentsDelete.forEach(
-        (element) => element.addEventListener('click', this.#commentDeleteClickHandler)
+        (element) => element.addEventListener('click', this.#commentDeleteClickHandler, true)
       );
     }
+  };
+
+  shakeComment = (commentId) => {
+    const comment = this.element.querySelector(`li[data-comment-id='${commentId}']`);
+    // console.log(commentId)
+    // console.log(this.element)
+    // console.log(comment)
+    this.shake.call({element: comment});
+  };
+
+  shakeForm = () => {
+    const form = this.element.querySelector('.film-details__new-comment');
+    this.shake.call({element: form});
+  };
+
+  shakeControls = () => {
+    const controls = this.element.querySelector('.film-details__controls');
+    this.shake.call({element: controls});
   };
 
   #commentEmotionHandler = (evt) => {
@@ -197,7 +231,7 @@ export default class PopupView extends AbstractStatefulView {
   };
 
   #updateData = () => {
-    this.#updateMovieData({
+    this.updateMovieData({
       emotion: this._state.checkedEmotion,
       comment: this._state.comment,
       scrollPosition: this.element.scrollTop
@@ -212,11 +246,11 @@ export default class PopupView extends AbstractStatefulView {
 
   static parsePopupToState = (
     popup,
+    currentComments,
     checkedEmotion = null,
     comment = null,
     scrollPosition = 0,
     updateData,
-    currentComments,
     isCommentLoadingError = false,
   ) => ({...popup,
     checkedEmotion,
@@ -246,7 +280,6 @@ export default class PopupView extends AbstractStatefulView {
   };
 
   setWatchListClickHandler = (callback) => {
-    console.log('view - клик отработал', callback)
     this._callback.watchlistClick = callback;
     this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#watchlistClickHandler);
   };

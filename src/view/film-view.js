@@ -12,6 +12,7 @@ const createNewFilmTemplate = (movie) => {
     year
   },
   comments,
+  isMovieEditing,
   userDetails: {
     watchlist,
     alreadyWatched,
@@ -30,11 +31,11 @@ const createNewFilmTemplate = (movie) => {
             <p class="film-card__description">${description}</p>
             <span class="film-card__comments">${comments.length} comments</span>
           </a>
-          <div class="film-card__controls">
+          <div class="film-card__controls" style="position: absolute">
             <button class="
             film-card__controls-item
             film-card__controls-item--add-to-watchlist
-            ${(watchlist) ? 'film-card__controls-item--active' : ''}" type="button">Add to watchlist</button>
+            ${(watchlist) ? 'film-card__controls-item--active' : ''}" type="button" ${(isMovieEditing) ? 'disabled' : ''}>Add to watchlist</button>
             <button class="
             film-card__controls-item
             film-card__controls-item--mark-as-watched
@@ -59,7 +60,7 @@ export default class FilmView extends AbstractStatefulView {
 
   get template() {
     // console.log(this._state)
-    return createNewFilmTemplate(this.#movie);
+    return createNewFilmTemplate(this._state);
   }
 
   static parseMovieToState = (movie) => ({
@@ -72,6 +73,11 @@ export default class FilmView extends AbstractStatefulView {
     this.setWatchListClickHandler(this._callback.watchlistClick);
     this.setWatchedClickHandler(this._callback.watchClick);
     this.setFavoriteClickHandler(this._callback.favorite);
+  };
+
+  shakeControls = () => {
+    const controls = this.element.querySelector('.film-card__controls');
+    this.shake.call({element: controls});
   };
 
   setMovieClickHandler = (callback) => {
@@ -112,6 +118,5 @@ export default class FilmView extends AbstractStatefulView {
   #favoriteClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.favorite();
-
   };
 }

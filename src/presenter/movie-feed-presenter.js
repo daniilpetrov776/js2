@@ -85,34 +85,35 @@ export default class MovieFeedPresenter {
           this.#popupPresenter.setMovieEditing();
         }
         try {
-          await this.#movieModel.updateOnServer(updateType, update)
-          console.log(update)
+          await this.#movieModel.updateOnServer(updateType, update);
         } catch {
           if (
             this.#moviePresenters.get(update.id) &&
             !this.#popupPresenter
           ) {
-            console.log('Ошибка')
+            this.#moviePresenters.get(update.id).setAborting();
+          }
+
+          if (this.#popupPresenter) {
+            this.#popupPresenter.setAborting({actionType});
           }
         }
-        // this.#movieModel.updateMovie(updateType, update);
         break;
       case UserAction.ADD_COMMENT:
         this.#popupPresenter.setCommentCreation();
         try {
           await this.#movieModel.addMovieComment(updateType, update, updateComment);
           this.#popupPresenter.clearMovieData();
-          // this.#movieModel.updateMovie(updateType, update);
-        } catch (err) {
-          console.log(err)
+        } catch {
+          this.#popupPresenter.setAborting({actionType});
         }
         break;
       case UserAction.DELETE_COMMENT:
         this.#popupPresenter.setCommentDeleting(updateComment.id);
         try {
           await this.#movieModel.deleteMovieComment(updateType, update, updateComment);
-        } catch (err) {
-          console.log(err)
+        } catch {
+          this.#popupPresenter.setAborting({actionType, commentId: updateComment.id});
         }
         break;
     }
@@ -128,15 +129,14 @@ export default class MovieFeedPresenter {
         }
 
         if (this.#popupPresenter && this.#currentMovie.id === data.id) {
-          console.log('сработала перерисовка данных попапа с сервера', updateType, data)
           this.#currentMovie = data;
           this.#renderMoviePopup();
         }
         if (this.#filterModel.get() !== FilterType.ALL) {
           this.#handleModelEvent(UpdateType.MINOR);
         }
-
         break;
+
       case UpdateType.MINOR:
         this.#clearMovies();
         this.#renderFeed();
@@ -247,19 +247,15 @@ export default class MovieFeedPresenter {
   };
 
   #renderMoviePopup = async () => {
-    console.log('перерисовка попапа',this.#currentMovie)
     const comments = await this.#movieModel.getCurrentcomments(this.#currentMovie);
     const isCommentsLoadingError = !comments;
     if (!this.#popupPresenter) {
-      console.log('вот почему не рисуется')
       this.#popupPresenter = new PopupPresenter(
         this.#filmsContainer,
         this.#removeMoviePopup,
         this.#handleViewAction,
       );
     }
-
-    console.log('должен рисоваться заново')
     if (!isCommentsLoadingError) {
       document.addEventListener('keydown', this.#onCtrlEnterDown);
     }

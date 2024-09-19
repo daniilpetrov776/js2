@@ -129,19 +129,26 @@ export default class PopupPresenter {
     });
   };
 
-  // setAborting = ({actionType, commentId}) => {
-  //   this.#popupComponent.updateElement({
-  //     ...this.#movieData,
-  //     isDisabled: false,
-  //     deletedCommentId: null,
-  //     isMovieEditing: false,
-  //   });
+  setAborting = ({actionType, commentId}) => {
+    this.#popupComponent.updateElement({
+      ...this.#movieData,
+      isDisabled: false,
+      deleteCommentId: null,
+      isMovieEditing: false,
+    });
 
-  //   switch (actionType) {
-  //     case UserAction.UPDATE_MOVIE:
-
-  //   }
-  // };
+    switch (actionType) {
+      case UserAction.UPDATE_MOVIE:
+        this.#popupComponent.shakeControls();
+        break;
+      case UserAction.ADD_COMMENT:
+        this.#popupComponent.shakeForm();
+        break;
+      case UserAction.DELETE_COMMENT:
+        this.#popupComponent.shakeComment(commentId);
+        break;
+    }
+  };
 
 
   #onCloseButtonClick = () => {
@@ -177,19 +184,17 @@ export default class PopupPresenter {
 
     // const deletedComment = this.#movie.comments.find((comment) => comment.id === commentId);
     const deletedComment = this.#comments.find((comment) => comment.id === commentId);
-    // console.log(this.#comments)
-    // console.log(deletedComment)
     this.#changeData(
       UserAction.DELETE_COMMENT,
       UpdateType.PATCH,
       this.#movie,
       deletedComment
     );
+    console.log('удаление комментария')
   };
 
   #toggleUserDetail = (detail) => {
     // Универсальная функция для изменения поля userDetails
-    console.log(detail)
     this.#changeData(
       UserAction.UPDATE_MOVIE,
       UpdateType.PATCH,

@@ -38,6 +38,11 @@ export default class MoviePresenter {
     this.#movieComponent.updateElement({isMovieEditing: true});
   };
 
+  setAborting = () => {
+    this.#movieComponent.updateElement({isMovieEditing: false});
+    this.#movieComponent.shakeControls();
+  };
+
   #setupMovieHandlers = () => {
     this.#movieComponent.setMovieClickHandler(() => this.#moviePopup(this.#movie));
     this.#movieComponent.setWatchListClickHandler(this.#toggleUserDetail.bind(this, 'watchlist'));
