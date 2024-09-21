@@ -23,6 +23,7 @@ export default class movieModel extends Observable {
     try {
       const movies = await this.#moviesApiService.movies;
       this.#movies = movies.map(this.#adaptToClient);
+      console.log(this.#movies)
     } catch (err) {
       this.#movies = [];
     }

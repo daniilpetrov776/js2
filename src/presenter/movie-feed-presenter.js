@@ -7,11 +7,13 @@ import FilmsContainerView from '../view/films-container-view.js';
 import ShowMoreButtonView from '../view/show-more-button-view.js';
 import EmptyFeedView from '../view/empty-feed-view.js';
 import LoadingView from '../view/loading-view.js';
+import TopRatedView from '../view/top-rated-view.js';
+import MostCommentedView from '../view/most-commented-view.js';
 import MoviePresenter from './movie-presenter.js';
 import PopupPresenter from './popup-presenter.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import { FilterType, SortType, UpdateType, UserAction } from '../utils/const.js';
-import { sortByNewest, compareMoviesRating } from '../utils/tasks.js';
+import { sortByNewest, compareMoviesRating, isEveryRatingSame, getTwoRandomMovies } from '../utils/tasks.js';
 
 const MOVIES_PER_STEP = 5;
 
@@ -24,6 +26,8 @@ export default class MovieFeedPresenter {
   #filmsList = new FilmsListView();
   #filmsContainer = new FilmsContainerView();
   #loadingComponent = new LoadingView();
+  #topRatedComponent = new TopRatedView();
+  #mostCommentedComponent = new MostCommentedView();
   #loadMoreMoviesComponent = null;
   #sortComponent = null;
   #popupPresenter = null;
@@ -67,6 +71,23 @@ export default class MovieFeedPresenter {
 
   init = () => {
     this.#renderFeed();
+  };
+
+  #renderTopRatedComponent = () => {
+    const movies = this.movies;
+
+    const getTopRatedMovies = () => {
+      const sortedTopRatedMovies = movies.sort(compareMoviesRating);
+      if (isEveryRatingSame(sortedTopRatedMovies)) {
+        console.log(getTwoRandomMovies(movies))
+        console.log('все рейтинги одинаковы')
+          // рендер двух случайных фильмов
+      }
+      // рендер лучшего фильма
+      this.#renderMovie(sortedTopRatedMovies[0], this.#topRatedComponent);
+      console.log('Рейтинги разные')
+    };
+    return getTopRatedMovies()
   };
 
   #handleViewAction = async (actionType, updateType, update, updateComment) => {
@@ -174,8 +195,8 @@ export default class MovieFeedPresenter {
     }
   };
 
-  #renderMovie = (movie) => {
-    const moviePresenter = new MoviePresenter(this.#filmsContainer, this.#handleViewAction, this.#addPopup);
+  #renderMovie = (movie, movieContainer = this.#filmsContainer) => {
+    const moviePresenter = new MoviePresenter(movieContainer, this.#handleViewAction, this.#addPopup);
     moviePresenter.init(movie);
     this.#moviePresenters.set(movie.id, moviePresenter);
   };
@@ -198,15 +219,12 @@ export default class MovieFeedPresenter {
     this.#checkAndRenderEmptyFeed();
 
     this.#renderMovies(movies.slice(0, Math.min(moviesCount, this.#renderMoviesCount)));
-
     if (moviesCount > this.#renderMoviesCount) {
       this.#renderloadMoreMoviesComponent();
     }
+    render(this.#topRatedComponent, this.#filmsList.element);
+    this.#renderTopRatedComponent();
   };
-
-  // #renderBaseStructure = () => {
-
-  // };
 
   #renderMovies = (movies) => {
     movies.forEach((movie) => this.#renderMovie(movie));
@@ -222,7 +240,7 @@ export default class MovieFeedPresenter {
     if (this.movies.length > MOVIES_PER_STEP) {
       this.#loadMoreMoviesComponent = new ShowMoreButtonView();
       this.#loadMoreMoviesComponent.setClickHandler(this.#onShowMoreButtonClick);
-      render(this.#loadMoreMoviesComponent, this.#siteElement);
+      render(this.#loadMoreMoviesComponent, this.#filmsList.element);
     }
   };
 
