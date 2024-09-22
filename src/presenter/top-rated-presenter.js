@@ -1,14 +1,15 @@
 import { remove, render } from '../framework/render.js';
-import MostCommentedView from '../view/most-commented-list-view.js';
-import MostCommentedListView from '../view/most-commented-list-view.js';
+import TopRatedView from '../view/top-rated-view.js';
+import TopRatedListView from '../view/top-rated-list-view.js';
+
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
-import { compareMoviesRating, isEveryRatingSame, getTwoRandomMovies, compareMoviesComments, isEveryCommentsLengthSame } from '../utils/tasks.js'
+import { compareMoviesRating } from '../utils/tasks.js';
 import { UpdateType, UserAction, TimeLimit, EXTRA_MOVIES_COUNT } from '../utils/const.js';
 import MoviePresenter from './movie-presenter.js';
 
-export default class MostCommentedPresenter {
-  #mostCommentedComponent = new MostCommentedView();
-  #mostCommentedListComponent = new MostCommentedListView();
+export default class TopRatedPresenter {
+  #topRatedComponent = new TopRatedView();
+  #topRatedListComponent = new TopRatedListView();
 
   #container = null;
   #movieModel = null;
@@ -27,11 +28,11 @@ export default class MostCommentedPresenter {
   }
 
   get movies() {
-    return [...this.#movieModel.get()].sort(compareMoviesComments).slice(0, EXTRA_MOVIES_COUNT);
+    return [...this.#movieModel.get()].sort(compareMoviesRating).slice(0, EXTRA_MOVIES_COUNT);
   }
 
   init = () => {
-    this.#renderMostCommentedComponent();
+    this.#renderTopRatedComponent();
   };
 
   #handleViewAction = async (actionType, updateType, update) => {
@@ -61,19 +62,12 @@ export default class MostCommentedPresenter {
           this.#moviePresenters.get(data.id).init(data);
         }
         break;
-      case UpdateType.EXTRA:
-        console.log(updateType)
-        this.#moviePresenters.forEach((presenter) => presenter.destroy());
-        this.#moviePresenters.clear();
-        console.log(this.movies)
-        this.#renderMovies(this.movies, this.#mostCommentedListComponent);
-        // РЕНДЕР ФИЛЬМОВ
     }
   };
 
-  #renderMostCommentedList = (container) => {
-    render(this.#mostCommentedComponent, container);
-    render(this.#mostCommentedListComponent, this.#mostCommentedComponent.element);
+  #renderTopRatedList = (container) => {
+    render(this.#topRatedComponent, container);
+    render(this.#topRatedListComponent, this.#topRatedComponent.element);
   };
 
   #renderMovies = (movies, container) => {
@@ -93,15 +87,15 @@ export default class MostCommentedPresenter {
   }
 
   destroy = () => {
-    remove(this.#mostCommentedComponent);
+    remove(this.#topRatedComponent);
   };
 
-  #renderMostCommentedComponent() {
+  #renderTopRatedComponent() {
     const movies = this.movies;
 
     if (movies.length > 0) {
-      this.#renderMostCommentedList(this.#container);
-      this.#renderMovies(movies, this.#mostCommentedListComponent);
+      this.#renderTopRatedList(this.#container);
+      this.#renderMovies(movies, this.#topRatedListComponent);
     }
   }
 }

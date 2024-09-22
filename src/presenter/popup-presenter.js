@@ -9,7 +9,6 @@ export default class PopupPresenter {
   #removePopup = null;
   #changeData = null;
   #currentSortType = null;
-  // #comments = [];
   #comments = null;
 
   #movieData = {
@@ -22,15 +21,11 @@ export default class PopupPresenter {
     this.#container = container;
     this.#removePopup = removePopup;
     this.#changeData = changeData;
-    // this.#comments = comments;
   }
 
   init = (movie, comments, isCommentsLoadingError) => {
     this.#movie = movie;
     this.#comments = (!isCommentsLoadingError) ? comments : [];
-    // console.log(this.#movie)
-    // console.log(this.#comments)
-    // this.#currentSortType = currentSortType;
 
     const prevPopupComponent = this.#popupComponent;
     this.#popupComponent = new PopupView(this.#movie, this.#movieData, this.#updateMovieData, this.#comments, isCommentsLoadingError);
@@ -44,7 +39,6 @@ export default class PopupPresenter {
     }
 
     document.addEventListener('keydown', this.#onEscKeydown);
-    // this.#setupPopupHandlers();
 
     if (prevPopupComponent === null) {
       render(this.#popupComponent, this.#container.element);
@@ -63,15 +57,6 @@ export default class PopupPresenter {
       remove(this.#popupComponent);
     }
   };
-
-  // #setupPopupHandlers = () => {
-  //   this.#popupComponent.setPopupClickHandler(this.#onCloseButtonClick);
-  //   this.#popupComponent.setCommentDeleteClickHandler(this.#commentDeleteClickHandler);
-  //   this.#popupComponent.setWatchListClickHandler(this.#toggleUserDetail.bind(this, 'watchlist'));
-  //   this.#popupComponent.setWatchedClickHandler(this.#toggleUserDetail.bind(this, 'alreadyWatched'));
-  //   this.#popupComponent.setFavoriteClickHandler(this.#toggleUserDetail.bind(this, 'favorite'));
-  // };
-
 
   clearMovieData = () => {
     this.#updateMovieData({
@@ -162,27 +147,7 @@ export default class PopupPresenter {
     }
   };
 
-  // #commentDeleteClickHandler = (commentId) => {
-  //   const movieCommentIdIndex = this.#movie.comments.findIndex((movieComment) => movieComment.id === commentId);
-
-  //   const deletedComment = this.#movie.comments.find((comment) => comment.id === commentId);
-  //   this.#changeData(
-  //     UserAction.DELETE_COMMENT,
-  //     UpdateType.PATCH,
-  //     {
-  //       ...this.#movie,
-  //       comments: [
-  //         ...this.#movie.comments.slice(0, movieCommentIdIndex),
-  //         ...this.#movie.comments.slice(movieCommentIdIndex + 1)
-  //       ],
-  //       deletedComment,
-  //     },
-  //   );
-  // };
-
   #commentDeleteClickHandler = (commentId) => {
-
-    // const deletedComment = this.#movie.comments.find((comment) => comment.id === commentId);
     const deletedComment = this.#comments.find((comment) => comment.id === commentId);
     this.#changeData(
       UserAction.DELETE_COMMENT,
@@ -190,7 +155,6 @@ export default class PopupPresenter {
       this.#movie,
       deletedComment
     );
-    console.log('удаление комментария')
   };
 
   #toggleUserDetail = (detail) => {
