@@ -9,29 +9,24 @@ import EmptyFeedView from '../view/empty-feed-view.js';
 import LoadingView from '../view/loading-view.js';
 import TopRatedView from '../view/top-rated-view.js';
 import TopRatedListView from '../view/top-rated-list-view.js';
-import MostCommentedListView from '../view/most-commented-list-view.js';
-import MostCommentedView from '../view/most-commented-view.js';
+// import MostCommentedListView from '../view/most-commented-list-view.js';
+// import MostCommentedView from '../view/most-commented-view.js';
+// import MostCommentedPresenter from './most-commented-presenter.js';
+import MostCommentedPresenter from './most-commented-presenter.js';
 import MoviePresenter from './movie-presenter.js';
 import PopupPresenter from './popup-presenter.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
-import { FilterType, SortType, UpdateType, UserAction } from '../utils/const.js';
+import { FilterType, SortType, UpdateType, UserAction, TimeLimit } from '../utils/const.js';
 import { sortByNewest, compareMoviesRating, isEveryRatingSame, getTwoRandomMovies, compareMoviesComments, isEveryCommentsLengthSame } from '../utils/tasks.js';
 
 const MOVIES_PER_STEP = 5;
 
-const TimeLimit = {
-  LOWER_LIMIT: 350,
-  UPPER_LIMIT: 1000,
-};
+
 export default class MovieFeedPresenter {
   #films = new FilmsView();
   #filmsList = new FilmsListView();
   #filmsContainer = new FilmsContainerView();
   #loadingComponent = new LoadingView();
-  #topRatedComponent = new TopRatedView();
-  #mostCommentedComponent = new MostCommentedView();
-  #topRatedListComponent = new TopRatedListView();
-  #mostCommentedListComponent = new MostCommentedListView();
   #loadMoreMoviesComponent = null;
   #sortComponent = null;
   #popupPresenter = null;
@@ -42,6 +37,8 @@ export default class MovieFeedPresenter {
   #currentSortType = SortType.DEFAULT;
   #currentFilterType = FilterType.ALL;
   #filterModel = null;
+
+  #mostCommentedPresenter = null;
 
   #renderMoviesCount = MOVIES_PER_STEP;
   #moviePresenters = new Map();
@@ -77,54 +74,58 @@ export default class MovieFeedPresenter {
     this.#renderFeed();
   };
 
-  #renderTopRatedComponent = async () => {
-    const movies = await this.movies;
+  getMoviesContainer = () => this.#films.element;
 
-    const getTopRatedMovies = () => {
-      const sortedTopRatedMovies = movies.sort(compareMoviesRating);
-      if (isEveryRatingSame(sortedTopRatedMovies)) {
-        const randomMovies = getTwoRandomMovies(sortedTopRatedMovies);
-        if (randomMovies.length > 1) {
-          this.#renderMovie(randomMovies[0], this.#topRatedListComponent);
-          this.#renderMovie(randomMovies[1], this.#topRatedListComponent);
-        } else {
-          this.#renderMovie(randomMovies[0], this.#topRatedListComponent);
-        } return;
-        console.log(getTwoRandomMovies(movies))
-        console.log('все рейтинги одинаковы')
-      }
-      // рендер лучшего фильма
-      this.#renderMovie(sortedTopRatedMovies[0], this.#topRatedListComponent);
-      if (sortedTopRatedMovies.length > 1) {
-        this.#renderMovie(sortedTopRatedMovies[1], this.#topRatedListComponent);
-      } return;
-      console.log('Рейтинги разные')
-    };
-    return getTopRatedMovies();
-  };
+  // #renderTopRatedComponent = async () => {
+  //   const movies = await this.movies;
 
-  #renderMostCommentedComponent = async () => {
-    const movies = await this.movies;
-    const getMostCommentedMovies = () => {
-      const sortedMostCommentedMovies = movies.sort(compareMoviesComments);
-      if (isEveryCommentsLengthSame(sortedMostCommentedMovies)) {
-        // рендер двух случайных фильмов
-        const randomMovies = getTwoRandomMovies(sortedMostCommentedMovies);
-        if (randomMovies.length > 1) {
-          this.#renderMovie(randomMovies[0], this.#mostCommentedListComponent);
-          this.#renderMovie(randomMovies[1], this.#mostCommentedListComponent);
-        } else {
-          this.#renderMovie(randomMovies[0], this.#mostCommentedListComponent);
-        } return;
-      }
-      // рендер двух самых комментируемых фильмов
-      this.#renderMovie(sortedMostCommentedMovies[0], this.#mostCommentedListComponent);
-      if (sortedMostCommentedMovies.length > 1) {
-        this.#renderMovie(sortedMostCommentedMovies[1], this.#mostCommentedListComponent);
-      }
-    };
-    return getMostCommentedMovies();
-  };
+  //   const getTopRatedMovies = () => {
+  //     const sortedTopRatedMovies = movies.sort(compareMoviesRating);
+  //     if (isEveryRatingSame(sortedTopRatedMovies)) {
+  //       const randomMovies = getTwoRandomMovies(sortedTopRatedMovies);
+  //       if (randomMovies.length > 1) {
+  //         this.#renderMovie(randomMovies[0], this.#topRatedListComponent);
+  //         this.#renderMovie(randomMovies[1], this.#topRatedListComponent);
+  //       } else {
+  //         this.#renderMovie(randomMovies[0], this.#topRatedListComponent);
+  //       } return;
+  //       console.log(getTwoRandomMovies(movies))
+  //       console.log('все рейтинги одинаковы')
+  //     }
+  //     // рендер лучшего фильма
+  //     this.#renderMovie(sortedTopRatedMovies[0], this.#topRatedListComponent);
+  //     if (sortedTopRatedMovies.length > 1) {
+  //       this.#renderMovie(sortedTopRatedMovies[1], this.#topRatedListComponent);
+  //     } return;
+  //     console.log('Рейтинги разные')
+  //   };
+  //   return getTopRatedMovies();
+  // };
+
+  // #renderMostCommentedComponent = async () => {
+  //   render(this.#mostCommentedComponent, this.#films.element);
+  //   render(this.#mostCommentedListComponent, this.#mostCommentedComponent.element);
+  //   const movies = await this.movies;
+  //   const getMostCommentedMovies = () => {
+  //     const sortedMostCommentedMovies = movies.sort(compareMoviesComments);
+  //     if (isEveryCommentsLengthSame(sortedMostCommentedMovies)) {
+  //       // рендер двух случайных фильмов
+  //       const randomMovies = getTwoRandomMovies(sortedMostCommentedMovies);
+  //       if (randomMovies.length > 1) {
+  //         this.#renderMovie(randomMovies[0], this.#mostCommentedListComponent);
+  //         this.#renderMovie(randomMovies[1], this.#mostCommentedListComponent);
+  //       } else {
+  //         this.#renderMovie(randomMovies[0], this.#mostCommentedListComponent);
+  //       } return;
+  //     }
+  //     // рендер двух самых комментируемых фильмов
+  //     this.#renderMovie(sortedMostCommentedMovies[0], this.#mostCommentedListComponent);
+  //     if (sortedMostCommentedMovies.length > 1) {
+  //       this.#renderMovie(sortedMostCommentedMovies[1], this.#mostCommentedListComponent);
+  //     }
+  //   };
+  //   return getMostCommentedMovies();
+  // };
 
   #handleViewAction = async (actionType, updateType, update, updateComment) => {
     this.#uiBlocker.block();
@@ -187,6 +188,8 @@ export default class MovieFeedPresenter {
 
         if (this.#popupPresenter && this.#currentMovie.id === data.id) {
           this.#currentMovie = data;
+          // this.#clearMostCommentedComponent();
+          // this.#renderMostCommentedComponent();
           this.#renderMoviePopup();
         }
         if (this.#filterModel.get() !== FilterType.ALL) {
@@ -258,12 +261,20 @@ export default class MovieFeedPresenter {
     if (moviesCount > this.#renderMoviesCount) {
       this.#renderloadMoreMoviesComponent();
     }
-    render(this.#topRatedComponent, this.#films.element);
-    render(this.#topRatedListComponent, this.#topRatedComponent.element);
-    render(this.#mostCommentedComponent, this.#films.element);
-    render(this.#mostCommentedListComponent, this.#mostCommentedComponent.element);
-    this.#renderTopRatedComponent();
-    this.#renderMostCommentedComponent();
+
+    this.#mostCommentedPresenter = new MostCommentedPresenter(
+      // this.getMoviesContainer(),
+      this.#films.element,
+      this.#movieModel,
+      this.#addPopup
+    );
+    this.#mostCommentedPresenter.init();
+    // render(this.#topRatedComponent, this.#films.element);
+    // render(this.#topRatedListComponent, this.#topRatedComponent.element);
+    // render(this.#mostCommentedComponent, this.#films.element);
+    // render(this.#mostCommentedListComponent, this.#mostCommentedComponent.element);
+    // this.#renderTopRatedComponent();
+    // this.#renderMostCommentedComponent();
   };
 
   #renderMovies = (movies) => {
@@ -352,6 +363,11 @@ export default class MovieFeedPresenter {
       this.#popupPresenter.createComment();
     }
   };
+
+
+  // #clearMostCommentedComponent = () => {
+  //   remove(this.#mostCommentedComponent);
+  // };
 
   #clearMovies = ({resetRenderedMoviesCount = false, resetSortType = false} = {}) => {
     this.#moviePresenters.forEach((presenter) => presenter.destroy());

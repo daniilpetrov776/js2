@@ -69,6 +69,8 @@ export default class movieModel extends Observable {
         update: response.movie,
         isAdapted: false,
       });
+
+      this._notify(UpdateType.EXTRA);
     }  catch (err) {
       throw new Error('Can\'t add comment');
     }
@@ -164,6 +166,8 @@ export default class movieModel extends Observable {
         update: updateMovie,
         isAdapted: true
       });
+
+      this._notify(UpdateType.EXTRA);
     } catch (err) {
       throw new Error('Can\'t delete comment');
     }

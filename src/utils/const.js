@@ -24,4 +24,12 @@ export const UpdateType = {
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
   INIT: 'INIT',
+  EXTRA: 'EXTRA',
 };
+
+export const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
+
+export const EXTRA_MOVIES_COUNT = 2;

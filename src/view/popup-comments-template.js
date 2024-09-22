@@ -1,9 +1,7 @@
 import { dateToRelativeTime } from '../utils/tasks.js';
 import he from 'he';
 
-const createCommentTemplate = ({id, emotion, comment, author, date}, deleteCommentId) => {
-  // console.log(deleteCommentId)
-  return  `
+const createCommentTemplate = ({id, emotion, comment, author, date}, deleteCommentId) => `
   <li class="film-details__comment" data-comment-id=${id}>
     <span class="film-details__comment-emoji">
       <img src="./images/emoji/${emotion}.png" width="55" height="55" alt="emoji-${emotion}">
@@ -21,7 +19,6 @@ const createCommentTemplate = ({id, emotion, comment, author, date}, deleteComme
     </div>
   </li>
 `;
-}
 
 
 export const createNewCommentsTemplate = (comments, deleteCommentId) => `
