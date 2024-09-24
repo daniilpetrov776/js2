@@ -1,5 +1,5 @@
-import { dateToY } from '../utils/tasks.js';
-import AbstractView from '../framework/view/abstract-view.js';
+import { dateToY, minutesToTime } from '../utils/tasks.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
 const createNewFilmTemplate = (movie) => {
   const {filmInfo: {
@@ -12,6 +12,7 @@ const createNewFilmTemplate = (movie) => {
     year
   },
   comments,
+  isMovieEditing,
   userDetails: {
     watchlist,
     alreadyWatched,
@@ -23,18 +24,18 @@ const createNewFilmTemplate = (movie) => {
             <p class="film-card__rating">${rating}</p>
             <p class="film-card__info">
               <span class="film-card__year">${dateToY(year)}</span>
-              <span class="film-card__duration">${duration}</span>
-              <span class="film-card__genre">${genre}</span>
+              <span class="film-card__duration">${minutesToTime(duration)}</span>
+              <span class="film-card__genre">${genre[0]}</span>
             </p>
             <img src="${poster}" alt="" class="film-card__poster">
             <p class="film-card__description">${description}</p>
             <span class="film-card__comments">${comments.length} comments</span>
           </a>
-          <div class="film-card__controls">
+          <div class="film-card__controls" style="position: absolute">
             <button class="
             film-card__controls-item
             film-card__controls-item--add-to-watchlist
-            ${(watchlist) ? 'film-card__controls-item--active' : ''}" type="button">Add to watchlist</button>
+            ${(watchlist) ? 'film-card__controls-item--active' : ''}" type="button" ${(isMovieEditing) ? 'disabled' : ''}>Add to watchlist</button>
             <button class="
             film-card__controls-item
             film-card__controls-item--mark-as-watched
@@ -48,21 +49,40 @@ const createNewFilmTemplate = (movie) => {
 `);
 };
 
-export default class FilmView extends AbstractView {
-  #task = null;
+export default class FilmView extends AbstractStatefulView {
+  #movie = null;
 
-  constructor(task) {
+  constructor(movie) {
     super();
-    this.task = task;
+    this.#movie = movie;
+    this._state = FilmView.parseMovieToState(this.#movie);
   }
 
   get template() {
-    return createNewFilmTemplate(this.task);
+    // console.log(this._state)
+    return createNewFilmTemplate(this._state);
   }
+
+  static parseMovieToState = (movie) => ({
+    ...movie,
+    isMovieEditing: false,
+  });
+
+  _restoreHandlers = () => {
+    this.setMovieClickHandler(this._callback.click);
+    this.setWatchListClickHandler(this._callback.watchlistClick);
+    this.setWatchedClickHandler(this._callback.watchClick);
+    this.setFavoriteClickHandler(this._callback.favorite);
+  };
+
+  shakeControls = () => {
+    const controls = this.element.querySelector('.film-card__controls');
+    this.shake.call({element: controls});
+  };
 
   setMovieClickHandler = (callback) => {
     this._callback.click = callback;
-    this.element.querySelector('.film-card__poster').addEventListener('click', this.#movieClickHandler);
+    this.element.querySelector('a').addEventListener('click', this.#movieClickHandler);
   };
 
   setWatchListClickHandler = (callback) => {
@@ -98,6 +118,5 @@ export default class FilmView extends AbstractView {
   #favoriteClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.favorite();
-
   };
 }

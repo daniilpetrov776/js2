@@ -1,15 +1,13 @@
-export const calculateWatchedMovies = (movies) => movies.filter((movie) => movie.userDetails.alreadyWatched);
+export const getUserRank = (movies) => {
+  const WatchedMoviesCount = movies.filter((movie) => movie.userDetails.alreadyWatched).length;
 
-export const getUserRank = (moviesWatched) => {
-  const count = moviesWatched.length;
-
-  if (count === 0) {
+  if (WatchedMoviesCount === 0) {
     return null;
-  } else if (count >= 1 && count <= 10) {
+  } else if (WatchedMoviesCount >= 1 && WatchedMoviesCount <= 10) {
     return 'novice';
-  } else if (count >= 11 && count <= 20) {
+  } else if (WatchedMoviesCount >= 11 && WatchedMoviesCount <= 20) {
     return 'fan';
-  } else if (count >= 21) {
+  } else if (WatchedMoviesCount >= 21) {
     return 'movie buff';
   }
 };

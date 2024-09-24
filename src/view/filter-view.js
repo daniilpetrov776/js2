@@ -1,26 +1,65 @@
 import AbstractView from '../framework/view/abstract-view.js';
+import {FilterType} from '../utils/const.js';
 
-const createFilterTemplate = (filters) => {
-  const watchlistCount = filters.find((filter) => filter.name === 'Watchlist')?.count.length || 0;
-  const historyCount = filters.find((filter) => filter.name === 'History')?.count.length || 0;
-  const favoritesCount = filters.find((filter) => filter.name === 'Favorites')?.count.length || 0;
+const createFilterTemplate = ({type, count}, currentFilter) => {
+  const getFilterName = (filterName) =>
+    (filterName === FilterType.ALL) ?
+      'All movies' : type;
 
-  return (`<main class="main">
-  <nav class="main-navigation">
-    <a href="#all" class="main-navigation__item main-navigation__item--active">All movies</a>
-    <a href="#watchlist" class="main-navigation__item">Watchlist <span class="main-navigation__item-count">${watchlistCount}</span></a>
-    <a href="#history" class="main-navigation__item">History <span class="main-navigation__item-count">${historyCount}</span></a>
-    <a href="#favorites" class="main-navigation__item">Favorites <span class="main-navigation__item-count">${favoritesCount}</span></a>
-  </nav>`);
+  const getFilterTextContent = (filterName) =>
+    (filterName !== FilterType.ALL) ?
+      `<span class="main-navigation__item-count">${count}</span>` : '';
+
+  return `
+    <a
+      href="#${type}"
+      class="
+        main-navigation__item
+        ${(type === currentFilter) ? 'main-navigation__item--active' : ''}
+      "
+      data-filter-type=${type}
+    >
+      ${getFilterName(type)}
+      ${getFilterTextContent(type)}
+    </a>
+    `;
+};
+
+const createFilterViewTemplate = (filters, currentFilter) => {
+  const filterItems = filters.map((filter) => createFilterTemplate(filter, currentFilter)).join('');
+  return `
+      <nav class="main-navigation">
+      ${filterItems}
+    </nav>
+    `;
 };
 
 export default class FilterView extends AbstractView{
-  constructor(filters) {
+  #filters = null;
+  #filterType = null;
+
+  constructor(filters, filterType) {
     super();
-    this.filters = filters;
+    this.#filters = filters;
+    this.#filterType = filterType;
   }
 
   get template() {
-    return createFilterTemplate(this.filters);
+    return createFilterViewTemplate(this.#filters, this.#filterType);
   }
+
+  setFilterTypeChangeHandler = (callback) => {
+    this._callback.click = callback;
+    this.element.addEventListener('click', this.#filterClickHandler);
+  };
+
+  #filterClickHandler = (evt) => {
+    if (evt.target.tagName !== 'A') {
+      return;
+    }
+
+    evt.preventDefault();
+
+    this._callback.click(evt.target.dataset.filterType);
+  };
 }

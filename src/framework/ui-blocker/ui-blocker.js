@@ -56,6 +56,7 @@ export default class UiBlocker {
 
     if (duration >= this.#upperLimit) {
       this.#removeClass();
+      console.log('разблокировка')
       return;
     }
 
