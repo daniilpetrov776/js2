@@ -41,7 +41,7 @@ export default class PopupPresenter {
     document.addEventListener('keydown', this.#onEscKeydown);
 
     if (prevPopupComponent === null) {
-      render(this.#popupComponent, this.#container.element);
+      render(this.#popupComponent, this.#container);
       return;
     }
 

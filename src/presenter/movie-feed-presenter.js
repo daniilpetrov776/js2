@@ -33,6 +33,7 @@ export default class MovieFeedPresenter {
   #currentFilterType = FilterType.ALL;
   #filterModel = null;
 
+
   #topRatedPresenter = null;
   #mostCommentedPresenter = null;
 
@@ -133,6 +134,7 @@ export default class MovieFeedPresenter {
           this.#currentMovie = data;
           this.#renderMoviePopup();
         }
+
         if (this.#filterModel.get() !== FilterType.ALL) {
           this.#handleModelEvent(UpdateType.MINOR);
         }
@@ -261,7 +263,7 @@ export default class MovieFeedPresenter {
     const isCommentsLoadingError = !comments;
     if (!this.#popupPresenter) {
       this.#popupPresenter = new PopupPresenter(
-        this.#filmsContainer,
+        this.#siteElement.parentNode,
         this.#removeMoviePopup,
         this.#handleViewAction,
       );
