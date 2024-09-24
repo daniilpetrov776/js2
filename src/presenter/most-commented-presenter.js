@@ -1,8 +1,8 @@
 import { remove, render } from '../framework/render.js';
-import MostCommentedView from '../view/most-commented-list-view.js';
+import MostCommentedView from '../view/most-commented-view.js';
 import MostCommentedListView from '../view/most-commented-list-view.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
-import { compareMoviesRating, isEveryRatingSame, getTwoRandomMovies, compareMoviesComments, isEveryCommentsLengthSame } from '../utils/tasks.js'
+import { compareMoviesComments } from '../utils/tasks.js';
 import { UpdateType, UserAction, TimeLimit, EXTRA_MOVIES_COUNT } from '../utils/const.js';
 import MoviePresenter from './movie-presenter.js';
 
@@ -62,12 +62,9 @@ export default class MostCommentedPresenter {
         }
         break;
       case UpdateType.EXTRA:
-        console.log(updateType)
         this.#moviePresenters.forEach((presenter) => presenter.destroy());
         this.#moviePresenters.clear();
-        console.log(this.movies)
         this.#renderMovies(this.movies, this.#mostCommentedListComponent);
-        // РЕНДЕР ФИЛЬМОВ
     }
   };
 

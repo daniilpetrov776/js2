@@ -53,31 +53,3 @@ export const sortByNewest = (movieA, movieB) => {
 export const compareMoviesRating = (movieA, movieB) => movieB.filmInfo.rating - movieA.filmInfo.rating;
 
 export const compareMoviesComments = (movieA, movieB) => movieB.comments.length - movieA.comments.length;
-
-export const isEveryRatingSame = (movies) => {
-  const firstRating = movies[0].filmInfo.rating;
-  console.log(firstRating);
-  const isRatingSame = movies.every((movie) => movie.filmInfo.rating === firstRating);
-  console.log(isRatingSame);
-  return isRatingSame;
-};
-
-export const isEveryCommentsLengthSame = (movies) => {
-  const firstRating = movies[0].comments.length;
-  console.log(firstRating);
-  const isLengthSame = movies.every((movie) => movie.comments.length === firstRating);
-  console.log(isLengthSame);
-  return isLengthSame;
-}
-
-export const getTwoRandomMovies = (movies) => {
-  if (movies.length === 1) {
-    return movies;
-  }
-  const firstRandomIndex = Math.floor(Math.random() * movies.length);
-  let secondRandomIndex;
-  do {
-    secondRandomIndex =  Math.floor(Math.random() * movies.length);
-  } while (secondRandomIndex === firstRandomIndex);
-  return [movies[firstRandomIndex], movies[secondRandomIndex]];
-};

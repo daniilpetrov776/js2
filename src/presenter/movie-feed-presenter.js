@@ -13,7 +13,7 @@ import MoviePresenter from './movie-presenter.js';
 import PopupPresenter from './popup-presenter.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import { FilterType, SortType, UpdateType, UserAction, TimeLimit } from '../utils/const.js';
-import { sortByNewest, compareMoviesRating, isEveryRatingSame, getTwoRandomMovies, compareMoviesComments, isEveryCommentsLengthSame } from '../utils/tasks.js';
+import { sortByNewest, compareMoviesRating } from '../utils/tasks.js';
 
 const MOVIES_PER_STEP = 5;
 
