@@ -253,7 +253,7 @@ export default class MovieFeedPresenter {
 
   #renderEmptyFeed = () => {
     this.#emptyFeedComponent = new EmptyFeedView(this.#currentFilterType);
-    render(this.#emptyFeedComponent, this.#films.element);
+    render(this.#emptyFeedComponent, this.#filmsList.element);
   };
 
   #renderMoviePopup = async () => {
